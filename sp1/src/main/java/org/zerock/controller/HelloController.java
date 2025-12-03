@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -63,6 +64,14 @@ public class HelloController {
 	// ---> void -> /WEB-INF/views/sample/ex4.jsp
 	@GetMapping("/ex4")
 	public void ex4(@RequestParam(name="n1", defaultValue = "1") int num,
+					@RequestParam("name") String name) {
+		log.info("num : " + num);
+		log.info("name : " + name);
+	}
+	
+	//http://localhost:8080/sample/ex4 , Method:Post
+	@PostMapping("/ex4")
+	public void ex4Post(@RequestParam(name="n1", defaultValue = "1") String num,
 					@RequestParam("name") String name) {
 		log.info("num : " + num);
 		log.info("name : " + name);
