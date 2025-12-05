@@ -29,7 +29,7 @@
 
           <div class="mb-3 input-group input-group-lg">
             <span class="input-group-text">Writer</span>
-            <input type="text" class="form-control" value="<c:out value='${board.writer}'/>" readonly>
+            <input type="text" class="form-control" name="writer" value="<c:out value='${board.writer}'/>" readonly>
           </div>
 
           <div class="mb-3 input-group input-group-lg">
@@ -49,7 +49,7 @@
   </div>
 </div>
 
-<!-- <script type="text/javascript">
+<script type="text/javascript">
   const formObj = document.querySelector("#actionForm");
 
   document.querySelector(".btnModify").addEventListener("click", () => {
@@ -69,7 +69,9 @@
     formObj.method = 'post';
     formObj.submit();
   });
-</script> -->
+  
+  
+</script>
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>
 
