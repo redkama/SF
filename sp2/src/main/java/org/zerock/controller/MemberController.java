@@ -56,4 +56,16 @@ public class MemberController {
 		return "/member/read";
 	}
 	
+	@PostMapping("/modify")
+	public String modifyPost(MemberDTO dto) {
+		service.update(dto);
+		return "redirect:/member/list";
+	}
+
+	@PostMapping("/delete")
+	public String deletePost(@RequestParam("mno") int mno) {
+		service.delete(mno);
+		return "redirect:/member/list";
+	}
+	
 }
