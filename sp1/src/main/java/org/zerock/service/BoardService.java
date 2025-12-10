@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.zerock.dto.BoardDTO;
+import org.zerock.dto.BoardListPaginDTO;
 import org.zerock.mapper.BoardMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,22 @@ public class BoardService {
 	
 	public List<BoardDTO> getList() {
 		return boardMapper.list();
+	}
+	
+	public BoardListPaginDTO getList(int page, int size) {
+		
+		page = page <= 0 ? 1 : page;
+		
+		size = (size <= 10 || page > 100) ? 10 : size;
+		
+		int skip = (page -1) * size;
+		
+		List<BoardDTO> list = boardMapper.list2(skip, size);
+		
+		int total = boardMapper.listCount();
+		
+		
+		return new BoardListPaginDTO(list, total, page, size);
 	}
 
 	public Long register(BoardDTO dto) {
@@ -43,4 +60,5 @@ public class BoardService {
 
 		boardMapper.update(dto);
 	}
+	
 }
