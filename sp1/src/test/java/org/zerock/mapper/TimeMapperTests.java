@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.zerock.db.DBTests;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -19,16 +18,13 @@ public class TimeMapperTests {
 	
 	@Test
 	public void testTime1() {
-		log.info("-------------------------");
+		log.info("--------------------------");
 		log.info(timeMapper.getTime());
 	}
-	
-	
+
 	@Test
 	public void testTime2() {
-		log.info("-------------------------");
+		log.info("--------------------------");
 		log.info(timeMapper.getTime2());
 	}
-	
-	
 }

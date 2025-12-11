@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/WEB-INF/views/includes/header.jsp" %>
+<%@ include file= "/WEB-INF/views/includes/header.jsp" %>
 
 <div class="row justify-content-center">
 	<div class="col-lg-12">
@@ -10,59 +10,57 @@
 			<div class="card-header py-3">
 				<h6 class="m-0 font-weight-bold text-primary">Board List</h6>
 			</div>
+			
+			<div class="card-body">
+				<table class="table table-boardered" id="dataTable">
+					<thead>
+						<th>Bno</th>
+						<th>Title</th>
+						<th>Writer</th>
+						<th>RegDate</th>
+					</thead>
+					<tbody class="tbody">
+						<c:forEach var="board" items="${dto.boardDTOList}">
+							<tr data-bno=${board.bno}>
+								<td><c:out value="${board.bno}" /></td>
+								<td>
+									<a href="/board/read/${board.bno}">
+										<c:out value="${board.title}" />
+									</a>
+								</td>
+								<td><c:out value="${board.writer}" /></td>
+								<td><c:out value="${board.createdDate}" /></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
 				
-				<div class="card-body">
-					<table class="table table-boardered" id="dataTable">
-						<thead>
-							<th>Bno</th>
-							<th>Title</th>
-							<th>Writer</th>
-							<th>RegDate</th>
-						</thead>
-						<tbody class="tbody">
-							<c:forEach var="board" items="${dto.boardDTOList}">
-								<tr data-bno=${board.bno}>
-									<td><c:out value="${board.bno}" /></td>
-									<td>
-										<a href="/board/read/${board.bno}">
-											<c:out value="${board.title}" />
-										</a>
-									</td>
-									<td><c:out value="${board.writer}" /></td>
-									<td><c:out value="${board.createdDate}" /></td>
-								</tr>
-							</c:forEach>
-						</tbody>
-					</table>
-					
-					<!-- 페이징 처리 -->
-					<div class="d-flex justify-content-center">
-					  <ul class="pagination">
-					  
-					  	<c:if test="${dto.prev}">
-						    <li class="page-item">
-						      <a class="page-link" href="${dto.start -1}" tabindex="-1">Prev</a>
-						    </li>
-					    </c:if>
-					    
-					    <c:forEach var="num" items="${dto.pageNums}">
-					    	<li class="page-item ${dto.page == num ? 'active' : ''}">
-					    		<a class="page-link" href="${num}">${num}</a>
-					    	</li>
-					    </c:forEach>
-					    					    
-					    <c:if test="${dto.next}">
-						    <li class="page-item">
-						      <a class="page-link" href="${dto.end +1}">Next</a>
-						    </li>
-					    </c:if>
-					    
-					  </ul>
-					</div>
-					
-					<!-- 페이징 처리 end -->
-					
+				<!-- 페이징 처리  -->
+				<div class="d-flex justify-content-center">
+				  <ul class="pagination ">
+				  	
+				  	<c:if test="${dto.prev}">
+					    <li class="page-item">
+					      <a class="page-link" href="${dto.start - 1 }" tabindex="-1">Prev</a>
+					    </li>
+				    </c:if>
+				    
+				    <c:forEach var="num" items="${dto.pageNums}">
+				    	<li class="page-item ${dto.page == num ? 'active' : ''}">
+				    		<a class="page-link" href="${num}">${num}</a>
+				    	</li>
+				    </c:forEach>
+				    
+				    <c:if test="${dto.next}">
+					    <li class="page-item">
+					      <a class="page-link" href="${dto.end + 1}">Next</a>
+					    </li>
+				    </c:if>
+				    
+				  </ul>
 				</div>
+				<!-- end 페이징 처리  -->
+			</div>	
 		</div>
 	</div>
 </div>
@@ -86,7 +84,6 @@
   </div>
 </div>
 
-
 <!-- 
    defer 속성 설명
      - HTML 문서를 먼저 모두 파싱한 뒤에 app.js를 실행하도록 지연(load defer)시키는 옵션
@@ -98,44 +95,45 @@
 <script type="text/javascript" defer="defer">
 	const result = '${result}'
 	
-	console.log("result : " + result);
+	console.log("result :"  + result);
 	
 	const myModal = new bootstrap.Modal(document.getElementById('myModal'));
 	
 	if(result){
 		
 		document.getElementById('modalResult').innerText = result;
+		
 		myModal.show();
 	}
 	
 	// 페이징 이벤트 처리
-	const paginDiv = document.querySelector(".pagination");
-	paginDiv.addEventListener("click", (e) => {
+	const pagingDiv = document.querySelector(".pagination");
+	pagingDiv.addEventListener("click", (e) => {
 		
-		//a 테그 기본 동작(페이지 이동) 막기
+		//a 태크 기본 동작(페이지 이동) 막기
 		e.preventDefault();
 		
-		//이벤트 버블링 방지(부모 요소로 이벤트 전파 차단)
+		// 이벤트 버블링 방지(부모 요소로 이벤트 전파 차단)
 		e.stopPropagation();
 		
 		const target = e.target;
+		console.log("---------------");
 		console.log(target);
 		
-		const targetPage = target.getAttribute("href");
-		const size = ${dto.size} || 10;
+		const targetPage =  target.getAttribute("href");
+		const size = ${dto.size} || 10 ;
 		
 		const params = new URLSearchParams({
-			page : targetPage,
-			size : size
+			page: targetPage,
+			size: size
 		});
 		
-		self.location = `/board/list?\${params.toString()}`;
+		//?page=5&size=10		
+		self.location = `/board/list?\${params.toString()}` ;
 		
 	}, false);
-		
-	
 </script>
 
 
 
-<%@ include file="/WEB-INF/views/includes/footer.jsp" %>
+<%@ include file= "/WEB-INF/views/includes/footer.jsp" %>

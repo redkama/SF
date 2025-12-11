@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<h1>이름 : ${param.name }</h1>
-	<h1>나이 : ${age }</h1>
+<h1>이름 : ${param.name}</h1>
+<h1>나이 : ${age}</h1>
 </body>
 </html>

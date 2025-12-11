@@ -1,7 +1,5 @@
 package org.zerock.service;
 
-
-
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -19,27 +17,41 @@ public class BoardService {
 
 	private final BoardMapper boardMapper;
 	
-	public List<BoardDTO> getList() {
+	public List<BoardDTO> getList(){
+		
 		return boardMapper.list();
 	}
 	
-	public BoardListPaginDTO getList(int page, int size) {
+	public BoardListPaginDTO getList(int page, int size, String typeStr, String keyword) {
 		
-		page = page <= 0 ? 1 : page;
+		page  = page <= 0 ? 1 : page;
 		
+		//해석? 
 		size = (size <= 10 || page > 100) ? 10 : size;
 		
-		int skip = (page -1) * size;
+		/*
+		 * 전체 데이타 100개 있다고 가정
+		 * 1 page : 10 -> 100 ~ 91, skip 0
+		 * 2 Page : 10 -> 90 ~ 81, skip 10
+		 * 3 page : 10 -> 80 ~ 71 , skip 20
+		 * .
+		 * 5 page : 10 -> 60 ~ 51, skip 40
+		 * 
+		 */
 		
-		List<BoardDTO> list = boardMapper.list2(skip, size);
+		int skip = (page - 1) * size;
 		
-		int total = boardMapper.listCount();
+		String[] types = typeStr !=null ? typeStr.split("") : null;
 		
+		List<BoardDTO> list = boardMapper.listSearch(skip, size, types, keyword);
 		
-		return new BoardListPaginDTO(list, total, page, size);
+		int total = boardMapper.listCountSearch(types, keyword);
+		
+		return new BoardListPaginDTO(list, total, page, size, typeStr, keyword);
 	}
 
 	public Long register(BoardDTO dto) {
+		
 		int insertCounter = boardMapper.insert(dto);
 		
 		log.info("insertCounter : " + insertCounter);
@@ -48,7 +60,7 @@ public class BoardService {
 	}
 
 	public BoardDTO read(Long bno) {
-
+		
 		return boardMapper.selectOne(bno);
 	}
 
@@ -57,8 +69,8 @@ public class BoardService {
 	}
 
 	public void modify(BoardDTO dto) {
-
 		boardMapper.update(dto);
 	}
+	
 	
 }

@@ -29,7 +29,7 @@
 
           <div class="mb-3 input-group input-group-lg">
             <span class="input-group-text">Writer</span>
-            <input type="text" class="form-control" name="writer" value="<c:out value='${board.writer}'/>" readonly>
+            <input type="text" name="writer" class="form-control" value="<c:out value='${board.writer}'/>" readonly>
           </div>
 
           <div class="mb-3 input-group input-group-lg">
@@ -50,28 +50,27 @@
 </div>
 
 <script type="text/javascript">
-  const formObj = document.querySelector("#actionForm");
-
-  document.querySelector(".btnModify").addEventListener("click", () => {
-    formObj.action = '/board/modify';
-    formObj.method = 'post';
-    formObj.submit();
-  });
-
-  document.querySelector(".btnList").addEventListener("click", () => {
-    formObj.action = '/board/list';
-    formObj.method = 'get';
-    formObj.submit();
-  });
-
-  document.querySelector(".btnRemove").addEventListener("click", () => {
-    formObj.action = '/board/remove';
-    formObj.method = 'post';
-    formObj.submit();
-  });
-  
-  
+	
+	const formObj = document.querySelector("#actionForm");
+	document.querySelector(".btnModify").addEventListener("click",  ()=>{
+		formObj.action = "/board/modify";
+		formObj.method = "post";
+		formObj.submit();
+	});
+	
+	document.querySelector(".btnList").addEventListener("click", ()=> {
+		formObj.action = "/board/list";
+		formObj.method = "get";
+		formObj.submit();
+	});
+	
+	document.querySelector(".btnRemove").addEventListener("click", ()=>{
+		formObj.action = "/board/remove";
+		formObj.method = "post";
+		formObj.submit();
+	});
 </script>
+
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>
 

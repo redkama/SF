@@ -22,7 +22,7 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 	
-	<!-- /resources/로 시작하는 모든 요청은 /resources/ 폴더 내에 있는 정적리소스 호출 -->
+	<!-- resources/로 시작하는 모든 요청은 /resources 폴더 내에 있는 정적리소스 호출 -->
 	<mvc:resources location="/resources/" mapping="/resources/**" />
 	
 	<!-- org.zerock.controller 경로를 스캔해서 @Service,@Resitory, @Controller, 

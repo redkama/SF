@@ -42,8 +42,8 @@
           
           <c:if test="${!board.delFlag}">
             <a href='/board/modify/${board.bno}'>
-               <button type="button" class="btn btn-warning btnModify" >MODIFY</button>
-            </a>   
+            	<button type="button" class="btn btn-warning btnModify" >MODIFY</button>
+            </a>	
           </c:if>
         </div>
 

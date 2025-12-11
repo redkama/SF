@@ -1,5 +1,6 @@
 package org.zerock.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -27,15 +28,15 @@ public class BoardMapperTests {
 //		dto.setTitle("title");
 //		dto.setContent("content");
 //		dto.setWriter("user00");
-	
+		
 		BoardDTO dto = BoardDTO.builder()
-				.title("title3")
-				.content("content3")
-				.writer("user03")
+				.title("title4")
+				.content("content4")
+				.writer("user04")				
 				.build();
 		
 		int insertCount = boardMapper.insert(dto);
-		log.info("--------------------------");
+		log.info("-----------------------------");
 		log.info("insertCount : " + insertCount);
 		
 		log.info("BNO : " + dto.getBno());
@@ -43,9 +44,9 @@ public class BoardMapperTests {
 	
 	@Test
 	public void testSelectOne() {
-		BoardDTO boardDTO = boardMapper.selectOne(1L);
-		
-		log.info("boardDTO : " + boardDTO);
+		 BoardDTO boardDTO = boardMapper.selectOne(1L);
+		 
+		 log.info("boardDTO : " + boardDTO);
 	}
 	
 	@Test
@@ -59,7 +60,7 @@ public class BoardMapperTests {
 	public void testUpdate() {
 		BoardDTO dto = BoardDTO.builder()
 				.title("new title")
-				.content("new content")
+				.content("new Content")
 				.delFlag(false)
 				.bno(1L)
 				.build();
@@ -71,19 +72,22 @@ public class BoardMapperTests {
 	@Test
 	public void testSelect() {
 		
-//		List<BoardDTO> list = boardMapper.list();
-//		for(BoardDTO dto : list)
-//			log.info(dto);
+		//List<BoardDTO> list = boardMapper.list();		
+		//for(BoardDTO dto : list)
+		//	log.info(dto);
+		
 		
 		boardMapper.list().forEach(dto->log.info(dto));
-//		boardMapper.list().forEach(log::info);
+		
 	}
 	
 	@Test
 	public void testPagining() {
-		int page = 3;
+	
+		int page =3;
 		
-		int skip = (page-1) *10;
+		//계산
+		int skip = (page - 1) * 10;
 		int count = 10;
 		
 		boardMapper.list2(skip, count)
@@ -91,12 +95,40 @@ public class BoardMapperTests {
 	}
 	
 	@Test
-	   public void testPageNums() {
-	      
-//	      IntStream.rangeClosed(1, 5).boxed().forEach(i -> log.info(i));
-	      List<Integer> list = IntStream.rangeClosed(1, 5).boxed().toList();
-	      log.info(list);
-	   }
+	public void testPagNums() {
+		
+//		IntStream.rangeClosed(1, 5).boxed().forEach(i -> log.info(i));
+		List<Integer> list = IntStream.rangeClosed(1, 5).boxed().toList();
+		log.info(list);
+	}
 	
+	@Test
+	public void testSearch() {
+		int page= 2;
+		
+		int skip = (page -1) * 10;
+		int count = 15;
+		
+		String[] types = new String[] {"T","C"};
+		
+//		List<String> types = new ArrayList<String>();
+//		types.add("T");
+//		types.add("C");		
+		
+		String keyword = "test";
+		
+		boardMapper.listSearch(skip, count, types, keyword);
+	}
 	
+	@Test
+	public void testCount() {
+		
+		
+		String[] types = new String[] {"T","C"};				
+		
+		String keyword = "수정";
+		
+		int result = boardMapper.listCountSearch(types, keyword);
+		log.info("전체 갯수 : " + result);
+	}
 }

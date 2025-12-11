@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.zerock.dto.BoardDTO;
 
 public interface BoardMapper {
-
+	
 	int insert(BoardDTO dto);
 	
 	BoardDTO selectOne(Long bno);
@@ -21,9 +21,19 @@ public interface BoardMapper {
 	
 	int listCount();
 	
-	List<BoardDTO> listSearch(@Param("skip") int skip,
-							@Param("count") int count,
-							@Param("types") String[] types,
-							@Param("keyword") String keyword
-							);
+	/* T, C, W
+	 * types : TCW ->   T|C|W
+	 * keyword : 스프링 검색
+	 */
+	List<BoardDTO> listSearch( @Param("skip") int skip,
+								@Param("count") int count,
+								@Param("types") String[] types,
+//								@Param("types") List<String> types,
+								@Param("keyword") String keyword
+							  );
+	
+	int listCountSearch(
+				@Param("types") String[] types,
+				@Param("keyword") String keyword
+			);
 }

@@ -21,13 +21,12 @@ import lombok.ToString;
     delflag boolean default false
 );
  */
-
-@Setter   // 멤버 변수 변경 가능
-@Getter   //  조회 
-@ToString   // 멤버 변수 값 조회
-@AllArgsConstructor   // 생성자
-@NoArgsConstructor   // 디폴트 생성자
-@Builder   // setter 대용으로 사용 가능
+@Setter  //멤버 변수 변경 가능
+@Getter  // 조회
+@ToString  //멤버 변수 값 조회
+@AllArgsConstructor  // 생성자
+@NoArgsConstructor   //디폴트 생성자
+@Builder             //setter 대용으로 사용 가능    
 public class BoardDTO {
 
 	private Long bno;
@@ -41,5 +40,5 @@ public class BoardDTO {
 	public String getCreatedDate() {
 		return regDate.format(DateTimeFormatter.ISO_DATE);
 	}
-	
+		
 }
