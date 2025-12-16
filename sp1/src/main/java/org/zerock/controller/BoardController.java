@@ -86,10 +86,19 @@ public class BoardController {
 	// db에서 1번 데이타 보여주세요
 	// -> /WEB-INF/ views / board / read.jsp
 	@GetMapping("/read/{bno}")
-	public String read(@PathVariable("bno") Long bno, Model model) {
+	public String read(@PathVariable("bno") Long bno, 
+						@RequestParam(name="page", defaultValue = "1") int page,
+						@RequestParam(name="size", defaultValue = "10") int size,
+						@RequestParam(name="types", required = false) String types,
+						@RequestParam(name="keyword", required = false) String keyword,
+						Model model) {
 		
 		BoardDTO dto = boardService.read(bno);
 		model.addAttribute("board", dto);
+		model.addAttribute("page", page);
+	    model.addAttribute("size", size);
+	    model.addAttribute("types", types);
+	    model.addAttribute("keyword", keyword);
 		
 		return "/board/read";
 		

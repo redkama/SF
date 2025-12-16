@@ -24,9 +24,15 @@
                      <tr data-bno=${board.bno}>
                         <td><c:out value="${board.bno}" /></td>
                         <td>
-                           <a href="/board/read/${board.bno}">
-                              <c:out value="${board.title}" />
-                           </a>
+                           	<c:url var="readUrl" value="/board/read/${board.bno}">
+								<c:param name="page" value="${dto.page}" />
+							  	<c:param name="size" value="${dto.size}" />
+							  	<c:param name="types" value="${dto.types}" />
+							  	<c:param name="keyword" value="${dto.keyword}" />
+						   	</c:url>
+							<a href="${readUrl}">
+								<c:out value="${board.title}" />
+							</a>
                         </td>
                         <td><c:out value="${board.writer}" /></td>
                         <td><c:out value="${board.createdDate}" /></td>
