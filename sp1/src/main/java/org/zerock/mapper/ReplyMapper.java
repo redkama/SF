@@ -21,5 +21,7 @@ public interface ReplyMapper {
 			@Param("skip") int skip,
 			@Param("limit") int limit
 			);
+
+	int countOfBoard(Long bno);
 	
 }
