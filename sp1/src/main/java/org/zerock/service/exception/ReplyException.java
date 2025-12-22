@@ -1,9 +1,12 @@
 package org.zerock.service.exception;
 
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
 @Getter
-public class ReplyException extends RuntimeException{
+@Log4j2
+public class ReplyException  extends RuntimeException{
+
 	private int code;
 	private String msg;
 	
@@ -11,5 +14,4 @@ public class ReplyException extends RuntimeException{
 		this.code = code;
 		this.msg = msg;
 	}
-
 }

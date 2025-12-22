@@ -11,7 +11,7 @@ public interface ReplyMapper {
 	int insert(ReplyDTO replyDTO);
 	
 	ReplyDTO read(@Param("rno") int rno);
-	
+
 	int delete(@Param("rno") int rno);
 	
 	int update(ReplyDTO replyDTO);
@@ -19,9 +19,8 @@ public interface ReplyMapper {
 	List<ReplyDTO> listOfBoard(
 			@Param("bno") Long bno,
 			@Param("skip") int skip,
-			@Param("limit") int limit
+			@Param("limit") int  limit			
 			);
 
 	int countOfBoard(Long bno);
-	
 }

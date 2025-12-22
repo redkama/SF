@@ -11,7 +11,8 @@
       </div>
       
       <div class="card-body">
-				<form action="/board/register" method="post" class="p-3">
+				<form action="/board/register" method="post"   
+							enctype="application/x-www-form-urlencoded"  class="p-3">
 					<div class="mb-3">
 						<label class="form-label">Title</label> 
 						<input type="text" name="title" class="form-control">
