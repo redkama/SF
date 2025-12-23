@@ -40,6 +40,7 @@
 									</c:url>
 									<a href="${readUrl}">
 										<c:out value="${board.title}" />
+										<b style="color:blue">[ <c:out value="${board.replyCnt}" /> ]</b>
 									</a>
 								</td>
 								<td><c:out value="${board.writer}" /></td>

@@ -103,7 +103,7 @@
             작성자
           </div>
         </li>
-			</ul> <!-- 댓글 목록 -->
+ 	  </ul> <!-- 댓글 목록 -->
 
       <div aria-label="댓글 페이지 네비게이션" class="mt-4">
         <ul class="pagination justify-content-center">
@@ -124,11 +124,40 @@
           </li>
         </ul>
       </div>
-      <!-- 페이징 끝 -->
-      
+      <!-- 페이징 끝 -->      
 		</div>
 	</div>
 </div>
+
+<div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="replyModalLabel">댓글 수정 / 삭제</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">      
+        <form id="replyModForm">
+          <input type="hidden" name="rno" value="33">
+          <div class="mb-3">
+            <label for="replyText" class="form-label">댓글 내용</label>
+            <input type="text" name="replyText" id="replyText" class="form-control" value="Reply Text"/>
+          </div>
+        </form>        
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btnReplyMod">수정</button>
+        <button type="button" class="btn btn-danger btnReplyDel">삭제</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -167,19 +196,20 @@ document.querySelector(".addReplyBtn").addEventListener("click", e=>{
               // 보내는 데이터의 형식이 JSON임을 서버에 알려줍니다.
               'Content-Type': 'application/json' 
           }
-     })
+    })
     // 서버 전송에 성공했을 때 실행되는 구간입니다.
     .then(res => {
-         console.log("------성공 응답-------------");
-         console.log(res.data); // 서버에서 보내준 결과 데이터를 콘솔에 출력합니다.
-         
+          console.log("------성공 응답-------------");
+          console.log(res.data); // 서버에서 보내준 결과 데이터를 콘솔에 출력합니다.
+          
          // 전송이 성공했으므로 폼에 입력되어 있던 내용을 모두 비웁니다.
-         replyForm.reset();
-     })
+          replyForm.reset();
+          getReplies(1, true);
+    })
     // 서버 전송 중 에러가 발생했을 때 실행되는 구간입니다.
     .catch(err => {
          // 에러 메시지와 함께 서버의 응답 내용을 콘솔에 출력합니다.
-         console.error("여전히 에러가 난다면 서버 코드를 확인하세요!", err.response);
+        console.error("여전히 에러가 난다면 서버 코드를 확인하세요!", err.response);
     });
     
 }, false); // 이벤트 캡처링 단계를 사용하지 않겠다는 의미의 기본값입니다.
@@ -224,7 +254,7 @@ function printReplies(data){
   let liStr = "";
 
   for(replyDTO of replyDTOList){
-    liStr +=  `<li class="list-group-item">
+    liStr +=  `<li class="list-group-item" data-rno="\${replyDTO.rno}">
                   <div class="d-flex justify-content-between">
                     <div>
                       <strong>\${replyDTO.rno}</strong> - \${replyDTO.replyText}
@@ -282,6 +312,85 @@ document.querySelector(".pagination").addEventListener("click", e => {
 }, false);
 
 getReplies(1 , true);
+
+const replyModal = new bootstrap.Modal(document.querySelector("#replyModal"));
+const replyModForm = document.querySelector("#replyModForm");
+
+replyList.addEventListener("click", e => {
+  
+  //가장 까까운 상위 li 요소를 찾는다
+  const targetLi = e.target.closest("li");  
+  
+  /*
+    data-xxx 형태의 속성은 HTML의 사용자 정의 데이타 속성
+    브라우저가 의미를 해석하지 않고, js에서 꺼내 쓰라고 존재하는 값!
+    예시> data-rno, data-replyer, data-reply등등...
+  */
+
+  const rno = targetLi.getAttribute("data-rno");
+  
+  console.log(rno);
+
+  if(!rno){ return }
+
+  axios.get(`/replies/\${rno}`).then(res => {
+    const targetReply = res.data;
+
+    console.log(targetReply);
+
+    if(targetReply.delflag == false){
+      replyModForm.querySelector("input[name = 'rno']").value = targetReply.rno;
+      replyModForm.querySelector("input[name = 'replyText']").value = targetReply.replyText
+
+      replyModal.show();
+
+    }else{
+      alert("삭제된 댓글은 조회할 수 없습니다.");
+    }
+  });
+
+}, false);
+
+//삭제
+document.querySelector(".btnReplyDel").addEventListener("click", e => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const formData = new FormData(replyModForm);
+
+  const rno = formData.get("rno"); 
+
+  axios.delete(`/replies/\${rno}`).then( res => {
+    const data = res.data;    //{"result": "deleted"}
+
+    alert("삭제 성공했습니다.");
+  
+    replyModal.hide();
+
+    getReplies(currentPage);
+  });
+
+}, false);
+
+
+//수정
+document.querySelector(".btnReplyMod").addEventListener("click", e=>{
+  e.preventDefault();
+  e.stopPropagation();
+
+  const formData = new FormData(replyModForm);
+
+  const rno = formData.get("rno");
+
+  axios.put(`/replies/\${rno}`, formData ).then(res => {
+    const data = res.data;
+
+    alert("수정이 성공했습니다.");
+    replyModal.hide();
+    getReplies(currentPage);
+  })
+  
+}, false);
 
 </script>
 

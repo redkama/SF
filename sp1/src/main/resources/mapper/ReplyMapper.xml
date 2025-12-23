@@ -34,32 +34,14 @@
   
   <select id="listOfBoard" resultType="ReplyDTO">  
   	select * from tbl_reply
-  	where bno = #{bno} and rno>0 
+  	where bno = #{bno} and rno>0  and delflag=false
   	order by rno asc
   	limit #{limit} offset #{skip}
   </select>
   
   <select id="countOfBoard" resultType="int">
   	select count(rno) from tbl_reply
-  	where bno = #{bno} and rno > 0
+  	where bno = #{bno} and rno > 0 and delflag=false
   </select>
   
 </mapper>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

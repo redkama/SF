@@ -37,6 +37,9 @@ public class BoardDTO {
 	private LocalDateTime updateDate;
 	private boolean delFlag;
 	
+	//댓글 개수
+	public int replyCnt;
+	
 	public String getCreatedDate() {
 		return regDate.format(DateTimeFormatter.ISO_DATE);
 	}
