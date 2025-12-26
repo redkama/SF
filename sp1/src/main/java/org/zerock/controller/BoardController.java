@@ -2,9 +2,11 @@ package org.zerock.controller;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -85,6 +87,7 @@ public class BoardController {
 	//단건 조회	localhost:8080/board/read/12 
 	// db에서 1번 데이타 보여주세요
 	// -> /WEB-INF/ views / board / read.jsp
+	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/read/{bno}")
 	public String read(@PathVariable("bno") Long bno,
 			@RequestParam(name="page", defaultValue = "1") int page,
@@ -119,8 +122,9 @@ public class BoardController {
 		return "board/modify";
 	}
 	
+	@PreAuthorize("authentication.name == #dto.writer")
 	@PostMapping("/modify")
-	public String modifyPost(BoardDTO dto) {
+	public String modifyPost(@ModelAttribute BoardDTO dto) {
 		log.info("board modify post");
 		
 		boardService.modify(dto);

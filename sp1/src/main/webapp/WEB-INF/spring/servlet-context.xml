@@ -2,6 +2,8 @@
 	   xmlns:mvc="http://www.springframework.org/schema/mvc"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:security="http://www.springframework.org/schema/security"
+	   
 	   xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd
@@ -10,7 +12,10 @@
 			https://www.springframework.org/schema/mvc/spring-mvc.xsd
 			
 			http://www.springframework.org/schema/context 
-			https://www.springframework.org/schema/context/spring-context.xsd">
+			https://www.springframework.org/schema/context/spring-context.xsd
+			
+			http://www.springframework.org/schema/security 
+			https://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- @Controller, @GetMapping, @RequestParam... 사용할 수 있도록 활성화 
     	Spring MVC 핵심 기능 자동 활성화
@@ -31,6 +36,8 @@
 	<!-- org.zerock.controller 경로를 스캔해서 @Service,@Resitory, @Controller, 
 	@Component가 붙어 있는 클래스가 있다면 그 클래스를 객체 생성(Bean 등록)-->
 	<context:component-scan base-package="org.zerock.controller" />
+	
+	<security:global-method-security pre-post-annotations="enabled" />
 	
 	
 </beans>

@@ -50,25 +50,27 @@
 	    <artifactId>spring-tx</artifactId>
 	    <version>6.2.14</version>
 	</dependency>
-	
+
 	<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
 	<dependency>
 	    <groupId>org.springframework.security</groupId>
 	    <artifactId>spring-security-web</artifactId>
 	    <version>6.5.5</version>
 	</dependency>
-	
+
 	<dependency>
 	    <groupId>org.springframework.security</groupId>
 	    <artifactId>spring-security-config</artifactId>
 	    <version>6.5.5</version>
 	</dependency>
-	
+
 	<dependency>
 	    <groupId>org.springframework.security</groupId>
 	    <artifactId>spring-security-taglibs</artifactId>
 	    <version>6.5.5</version>
 	</dependency>
+		
+		
 	
 	<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 	<dependency>
@@ -158,10 +160,15 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <release>21</release>
+          <release>21</release>          
+          <compilerArgs>
+          	<arg>-parameters</arg>
+          </compilerArgs>
+          
         </configuration>
       </plugin>
       <plugin>

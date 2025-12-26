@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
     
 <%@include file="/WEB-INF/views/includes/header.jsp" %>
 
@@ -24,8 +25,9 @@
 					</div>
 
 					<div class="mb-3">
-						<label class="form-label">Writer</label> <input type="text"
-							name="writer" class="form-control">
+						<label class="form-label">Writer</label> 
+						<input type="text" name="writer" class="form-control" readonly="readonly"
+							value='<sec:authentication property="principal.uid"/>'>
 					</div>
 
 					<div class="d-flex justify-content-end">

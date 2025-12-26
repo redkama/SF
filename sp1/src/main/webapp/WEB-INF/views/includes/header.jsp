@@ -24,7 +24,7 @@
         <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
       </ul>
       <span class="navbar-text">
-        Logged in as <strong>admin</strong> | <a href="#" class="text-white text-decoration-underline">Logout</a>
+        Logged in as <strong>admin</strong> | <a href="/account/logout" class="text-white text-decoration-underline">Logout</a>
       </span>
     </div>
   </nav>
