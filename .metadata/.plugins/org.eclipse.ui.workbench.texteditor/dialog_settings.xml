@@ -10,14 +10,21 @@
 		<item key="isRegEx" value="false"/>
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="유지되게 구성합니다."/>
+			<item value="INSERT"/>
+			<item value="viewC"/>
+			<item value="deleted_yn"/>
+			<item value="yn"/>
+			<item value="official_answered_yn"/>
+			<item value="view_count"/>
+			<item value="b.view_count"/>
+			<item value="zerock"/>
+			<item value="insurance"/>
 			<item value="sec"/>
 			<item value="logout"/>
 			<item value="55664"/>
 			<item value="board"/>
 			<item value="Updates"/>
-			<item value="member"/>
-			<item value="hikari"/>
-			<item value="helloservice"/>
 		</list>
 		<list key="replacehistory">
 		</list>
