@@ -334,7 +334,7 @@
               <td class="col-id">#<c:out value="${b.boardId}"/></td>
 
               <td>
-                <a class="title" href="<c:url value='/board/detail'>
+                <a class="title" href="<c:url value='/board/view'>
                     <c:param name='boardId' value='${b.boardId}'/>
                     <c:if test='${not empty search.boardType}'><c:param name='boardType' value='${search.boardType}'/></c:if>
                     <c:if test='${not empty search.insuranceType}'><c:param name='insuranceType' value='${search.insuranceType}'/></c:if>

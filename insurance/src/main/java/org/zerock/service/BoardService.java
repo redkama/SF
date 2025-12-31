@@ -31,7 +31,7 @@ public class BoardService {
        - 조회수 증가 포함
        ========================== */
     @Transactional
-    public BoardDTO getDetail(int boardId) {
+    public BoardDTO getDetailWithViewCount(int boardId) {
 
         int updated = boardMapper.increaseViewCount(boardId);
         if (updated == 0) {
@@ -43,6 +43,14 @@ public class BoardService {
             throw new NotFoundException("게시글을 찾을 수 없습니다.");
         }
 
+        return board;
+    }
+    
+    public BoardDTO getDetail(int boardId) {
+        BoardDTO board = boardMapper.selectBoardById(boardId);
+        if (board == null) {
+            throw new NotFoundException("게시글을 찾을 수 없습니다.");
+        }
         return board;
     }
 

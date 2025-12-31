@@ -167,14 +167,16 @@
 
         UPDATE ins_board
         SET
-            title = #{title},
-            content = #{content},
-            insurance_type = #{insuranceType},
-            status = #{status},
-            open_yn = #{openYn},
-            updated_at = NOW()
-        WHERE board_id = #{boardId}
-          AND deleted_yn = 'N'
+            member_id = #{memberId},
+		    board_type = #{boardType},
+		    insurance_type = #{insuranceType},
+		    status = #{status},
+		    open_yn = #{openYn},
+		    title = #{title},
+		    content = #{content},
+		    updated_at = NOW()
+		WHERE board_id = #{boardId}
+		    AND deleted_yn = 'N'
     </update>
 
     <!-- 게시글 삭제 (논리 삭제) -->
