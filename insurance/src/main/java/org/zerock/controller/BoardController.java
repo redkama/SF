@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class BoardController {
 
     private final BoardService boardService;
-
+    
     /* ==========================
        게시글 목록
        ========================== */

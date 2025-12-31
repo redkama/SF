@@ -10,6 +10,10 @@
 		<item key="isRegEx" value="false"/>
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="count"/>
+			<item value="작성자 회원ID"/>
+			<item value="button"/>
+			<item value="detail"/>
 			<item value="유지되게 구성합니다."/>
 			<item value="INSERT"/>
 			<item value="viewC"/>
@@ -21,10 +25,6 @@
 			<item value="zerock"/>
 			<item value="insurance"/>
 			<item value="sec"/>
-			<item value="logout"/>
-			<item value="55664"/>
-			<item value="board"/>
-			<item value="Updates"/>
 		</list>
 		<list key="replacehistory">
 		</list>
