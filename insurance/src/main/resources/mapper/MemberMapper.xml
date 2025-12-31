@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.mapper.MemberMapper">
+
+  <select id="selectByLoginId" parameterType="string" resultType="org.zerock.dto.MemberDTO">
+    SELECT
+      member_id AS memberId,
+      login_id  AS loginId,
+      password  AS password,
+      name      AS name,
+      role      AS role,
+      email     AS email,
+      use_yn    AS useYn,
+      created_at AS createdAt
+    FROM ins_member
+    WHERE login_id = #{loginId}
+      AND use_yn = 'Y'
+  </select>
+
+  <insert id="insertMember" parameterType="org.zerock.dto.MemberDTO"
+          useGeneratedKeys="true" keyProperty="memberId">
+    INSERT INTO ins_member (
+      login_id, password, name, role, email, use_yn, created_at
+    ) VALUES (
+      #{loginId}, #{password}, #{name},
+      <choose>
+        <when test="role != null and role != ''">#{role}</when>
+        <otherwise>'USER'</otherwise>
+      </choose>,
+      #{email},
+      'Y',
+      NOW()
+    )
+  </insert>
+
+</mapper>

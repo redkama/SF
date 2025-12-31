@@ -72,7 +72,20 @@ public class BoardService {
        게시글 수정
        ========================== */
     @Transactional
-    public void modify(BoardDTO boardDTO) {
+    public void modify(BoardDTO boardDTO, int loginMemberId, String role) {
+    	
+    	BoardDTO origin = boardMapper.selectBoardById(boardDTO.getBoardId());
+        if (origin == null) throw new NotFoundException("수정할 게시글이 존재하지 않습니다.");
+
+        boolean isOwner = origin.getMemberId() == loginMemberId;
+        boolean isAdmin = "ADMIN".equals(role);
+
+        if (!isOwner && !isAdmin) {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
+
+        // memberId는 원본 유지 추천 (폼 조작 방지)
+        boardDTO.setMemberId(origin.getMemberId());
 
         int updated = boardMapper.updateBoard(boardDTO);
         if (updated == 0) {

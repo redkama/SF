@@ -39,5 +39,21 @@
 	
 	<security:global-method-security pre-post-annotations="enabled" />
 	
+	<mvc:interceptors>
+	    <mvc:interceptor>
+	        <mvc:mapping path="/board/write"/>
+	        <mvc:mapping path="/board/edit"/>
+	        <mvc:mapping path="/board/delete"/>
+	        <mvc:mapping path="/comment/**"/>
+	
+	        <mvc:exclude-mapping path="/member/**"/>
+	        <mvc:exclude-mapping path="/board/list"/>
+	        <mvc:exclude-mapping path="/board/view"/>
+	        <mvc:exclude-mapping path="/board/detail"/>
+	
+	        <bean class="org.zerock.interceptor.AuthInterceptor"/>
+	    </mvc:interceptor>
+	</mvc:interceptors>
+	
 	
 </beans>

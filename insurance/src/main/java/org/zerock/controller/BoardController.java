@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.zerock.dto.BoardDTO;
 import org.zerock.dto.BoardSearchDTO;
+import org.zerock.dto.MemberDTO;
 import org.zerock.dto.PageDTO;
 import org.zerock.service.BoardService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -97,10 +99,14 @@ public class BoardController {
        ========================== */
     @PostMapping("/write")
     public String write(BoardDTO boardDTO,
+    				HttpSession session,
 		            @ModelAttribute("search") BoardSearchDTO search,
 		            @RequestParam(defaultValue = "1") int page,
 		            @RequestParam(defaultValue = "10") int size,
 		            RedirectAttributes rttr) {
+    	
+    	MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
+        boardDTO.setMemberId(loginMember.getMemberId()); // ✅ 서버에서 확정
 		
 		boardService.register(boardDTO);
 		
@@ -134,13 +140,14 @@ public class BoardController {
        게시글 수정 처리
        ========================== */
     @PostMapping("/edit")
-    public String edit(BoardDTO boardDTO,
+    public String edit(BoardDTO boardDTO, HttpSession session,
     		@ModelAttribute("search") BoardSearchDTO search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             RedirectAttributes rttr) {
-
-		boardService.modify(boardDTO);
+    	
+    	MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
+    	boardService.modify(boardDTO, loginMember.getMemberId(), loginMember.getRole());
 		
 		rttr.addAttribute("boardId", boardDTO.getBoardId());
 		rttr.addAttribute("boardType", search.getBoardType());

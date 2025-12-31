@@ -20,6 +20,20 @@
   </style>
 </head>
 <body>
+<c:choose>
+  <c:when test="${not empty sessionScope.loginMember}">
+    <span>${sessionScope.loginMember.name}님</span>
+
+    <form action="${pageContext.request.contextPath}/member/logout" method="post" style="display:inline;">
+      <button type="submit">로그아웃</button>
+    </form>
+  </c:when>
+
+  <c:otherwise>
+    <a href="${pageContext.request.contextPath}/member/login">로그인</a>
+    <a href="${pageContext.request.contextPath}/member/join">회원가입</a>
+  </c:otherwise>
+</c:choose>
 <nav class="navbar navbar-expand-lg bg-white border-bottom">
   <div class="container">
     <a class="navbar-brand fw-bold" href="<c:url value='/board/list'/>">INS 커뮤니티</a>

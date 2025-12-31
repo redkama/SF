@@ -10,6 +10,11 @@
 		<item key="isRegEx" value="false"/>
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="zerock"/>
+			<item value="Encoder"/>
+			<item value="security"/>
+			<item value="crypto"/>
+			<item value="DispatcherServlet"/>
 			<item value="count"/>
 			<item value="작성자 회원ID"/>
 			<item value="button"/>
@@ -20,11 +25,6 @@
 			<item value="deleted_yn"/>
 			<item value="yn"/>
 			<item value="official_answered_yn"/>
-			<item value="view_count"/>
-			<item value="b.view_count"/>
-			<item value="zerock"/>
-			<item value="insurance"/>
-			<item value="sec"/>
 		</list>
 		<list key="replacehistory">
 		</list>
