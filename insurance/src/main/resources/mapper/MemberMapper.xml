@@ -35,5 +35,70 @@
       NOW()
     )
   </insert>
+  
+  <select id="existsLoginId" parameterType="string" resultType="int">
+	SELECT COUNT(*)
+	FROM ins_member
+	WHERE login_id = #{loginId}
+  </select>
+  
+  <select id="selectByMemberId" parameterType="int" resultType="org.zerock.dto.MemberDTO">
+	  SELECT
+	    member_id AS memberId,
+	    login_id  AS loginId,
+	    password  AS password,
+	    name      AS name,
+	    role      AS role,
+	    email     AS email,
+	    use_yn    AS useYn,
+	    created_at AS createdAt
+	  FROM ins_member
+	  WHERE member_id = #{memberId}
+	</select>
+	
+	<update id="updateNameEmail">
+	  UPDATE ins_member
+	  SET name = #{param2},
+	      email = #{param3}
+	  WHERE member_id = #{param1}
+	</update>
+	
+	<update id="updatePassword">
+	  UPDATE ins_member
+	  SET password = #{param2}
+	  WHERE member_id = #{param1}
+	</update>
+	
+	<select id="selectMemberList" resultType="org.zerock.dto.MemberDTO">
+	  SELECT
+	    member_id AS memberId,
+	    login_id  AS loginId,
+	    password  AS password,
+	    name      AS name,
+	    role      AS role,
+	    email     AS email,
+	    use_yn    AS useYn,
+	    created_at AS createdAt
+	  FROM ins_member
+	  ORDER BY member_id DESC
+	</select>
+	
+	<update id="updateMemberByAdmin" parameterType="org.zerock.dto.MemberUpdateAdminDTO">
+	  UPDATE ins_member
+	  <set>
+	    <if test="password != null">password = #{password},</if>
+	    name = #{name},
+	    role = #{role},
+	    email = #{email},
+	    use_yn = #{useYn}
+	  </set>
+	  WHERE member_id = #{memberId}
+	</update>
+	
+	<update id="disableMember" parameterType="int">
+	  UPDATE ins_member
+	  SET use_yn = 'N'
+	  WHERE member_id = #{param1}
+	</update>
 
 </mapper>

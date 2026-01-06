@@ -1,0 +1,285 @@
+/* =========================
+   Board pages (common.css 위에 얹는 전용 스타일)
+   - list / detail / write / edit
+========================= */
+
+/* ---------- 공통: page-title 보강 ---------- */
+.board .page-title h1{
+  font-size:22px;
+  margin:0;
+  letter-spacing:-.3px;
+}
+.board .page-title .meta{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:6px;
+}
+
+/* =========================================================
+   1) BOARD LIST
+========================================================= */
+.board-list .toolbar{
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+.board-list .toolbar .left{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.board-list .toolbar .right{ display:flex; align-items:center; gap:10px; }
+
+.board-list .filters{
+  padding:14px 16px;
+  display:grid;
+  grid-template-columns:160px 160px 160px 140px 1fr 210px;
+  gap:10px;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+.board-list .hint{
+  padding:0 16px 12px 16px;
+  color:var(--muted);
+  font-size:12px;
+  background:#fff;
+}
+
+.board-list .col-id{ width:86px; color:var(--muted); font-family:var(--mono); font-size:12px; }
+.board-list .col-meta{ width:220px; color:var(--muted); font-size:13px; }
+.board-list .col-stats{ width:120px; color:var(--muted); font-size:13px; }
+
+.board-list .title-link{
+  font-weight:600;
+  letter-spacing:-.2px;
+  line-height:1.3;
+  display:inline-block;
+}
+.board-list .subline{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+/* paging */
+.board-list .paging{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:14px 16px;
+  background:#fff;
+}
+.board-list .page-link{
+  min-width:36px;
+  height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-size:13px;
+  color:#374151;
+  padding:0 10px;
+}
+.board-list .page-link:hover{ background:#f9fafb; }
+.board-list .page-link.active{
+  background:var(--primary);
+  color:#fff;
+  border-color:#1d4ed8;
+  font-weight:700;
+}
+.board-list .page-link.disabled{
+  opacity:.45;
+  pointer-events:none;
+}
+
+@media (max-width:980px){
+  .board-list .filters{ grid-template-columns:1fr 1fr 1fr; }
+}
+@media (max-width:560px){
+  .board .page-title{ flex-direction:column; align-items:flex-start; }
+  .board-list .filters{ grid-template-columns:1fr 1fr; }
+
+  .board-list thead{ display:none; }
+  .board-list table,
+  .board-list tbody,
+  .board-list tr,
+  .board-list td{ display:block; width:100%; }
+  .board-list tbody td{ border-bottom:none; padding:10px 16px; }
+  .board-list tbody tr{ border-bottom:1px solid var(--line); }
+  .board-list .col-id,
+  .board-list .col-meta,
+  .board-list .col-stats{ width:auto; }
+}
+
+/* =========================================================
+   2) BOARD DETAIL
+========================================================= */
+.board-detail .card-hd.is-stack{ display:block; }
+
+.board-detail .badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.board-detail .detail-title{
+  font-size:20px;
+  font-weight:750;
+  letter-spacing:-.3px;
+  line-height:1.35;
+  margin:6px 0 12px;
+}
+
+.board-detail .meta-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  color:var(--muted);
+  font-size:13px;
+}
+.board-detail .meta-item{
+  background:#fafafa;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+.board-detail .meta-item b{ color:#374151; }
+
+.board-detail .content-box{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px;
+  line-height:1.75;
+  font-size:15px;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* 하단 버튼 영역 */
+.board-detail .card-ft{
+  padding:14px 16px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  background:#fff;
+}
+.board-detail .ft-left,
+.board-detail .ft-right{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+@media (max-width:720px){
+  .board-detail .meta-grid{ grid-template-columns:1fr; }
+}
+
+/* =========================================================
+   Board (detail 중심) - comments + official UI
+========================================================= */
+
+.board-detail .comment-card{
+  margin-top:14px;
+}
+
+/* 댓글 헤더 */
+.board-detail .comment-card .card-hd{
+  align-items:flex-end;
+}
+.board-detail .comment-title{
+  font-size:18px;
+  margin:0;
+}
+
+/* 댓글 작성 폼 */
+.board-detail .comment-form{
+  display:grid;
+  gap:10px;
+}
+.board-detail .comment-form .ta{
+  min-height:92px;
+}
+.board-detail .comment-tools{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.board-detail .comment-submit{
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* 댓글 리스트 */
+.board-detail .comment-item{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+  background:#fff;
+}
+.board-detail .comment-item.is-official{
+  border-color:#ddd6fe;
+  background:#faf5ff;
+}
+.board-detail .comment-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.board-detail .comment-who{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.board-detail .comment-time{
+  font-family:var(--mono);
+  color:var(--muted);
+  font-size:12px;
+}
+.board-detail .comment-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.board-detail .comment-body{
+  margin-top:10px;
+  white-space:pre-wrap;
+  line-height:1.6;
+  word-break:break-word;
+}
+
+/* 공식 배지: status(답변완료) 뱃지랑 분리 */
+.b-official{
+  background:#faf5ff;
+  color:#5b21b6;
+  border-color:#ddd6fe;
+}
+
+/* 댓글 수정 폼 */
+.board-detail .comment-edit{
+  margin-top:10px;
+}
+.board-detail .comment-edit-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:8px;
+  flex-wrap:wrap;
+}

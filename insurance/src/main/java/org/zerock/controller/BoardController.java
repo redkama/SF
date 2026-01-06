@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.zerock.dto.BoardDTO;
 import org.zerock.dto.BoardSearchDTO;
+import org.zerock.dto.CommentDTO;
 import org.zerock.dto.MemberDTO;
 import org.zerock.dto.PageDTO;
 import org.zerock.service.BoardService;
+import org.zerock.service.CommentService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 public class BoardController {
 
     private final BoardService boardService;
+    
+    private final CommentService commentService;
     
     /* ==========================
        게시글 목록
@@ -64,6 +68,11 @@ public class BoardController {
     ) {
         model.addAttribute("board", boardService.getDetailWithViewCount(boardId));
         model.addAttribute("page", new PageDTO(page, size));
+        
+        List<CommentDTO> comments = commentService.listByBoardId(boardId);
+        model.addAttribute("comments", comments);
+        model.addAttribute("commentCount", comments.size());
+        
         return "board/detail";
     }
     
@@ -77,6 +86,11 @@ public class BoardController {
     ) {
         model.addAttribute("board", boardService.getDetail(boardId));
         model.addAttribute("page", new PageDTO(page, size));
+        
+        List<CommentDTO> comments = commentService.listByBoardId(boardId);
+        model.addAttribute("comments", comments);
+        model.addAttribute("commentCount", comments.size());
+        
         return "board/detail";
     }
 

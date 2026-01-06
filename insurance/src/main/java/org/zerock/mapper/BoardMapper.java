@@ -49,4 +49,7 @@ public interface BoardMapper {
        ========================== */
     int increaseViewCount(int boardId);
 
+	void updateStatus(@Param("boardId") int boardId,
+            		@Param("status") String status);
+
 }

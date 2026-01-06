@@ -1,197 +1,304 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+<c:set var="cpath" value="${pageContext.request.contextPath}" />
+
+<c:url var="listUrl" value="/board/list">
+  <c:if test="${not empty param.boardType}"><c:param name="boardType" value="${param.boardType}" /></c:if>
+  <c:if test="${not empty param.insuranceType}"><c:param name="insuranceType" value="${param.insuranceType}" /></c:if>
+  <c:if test="${not empty param.status}"><c:param name="status" value="${param.status}" /></c:if>
+  <c:if test="${not empty param.openYn}"><c:param name="openYn" value="${param.openYn}" /></c:if>
+  <c:if test="${not empty param.keyword}"><c:param name="keyword" value="${param.keyword}" /></c:if>
+  <c:if test="${not empty param.page}"><c:param name="page" value="${param.page}" /></c:if>
+  <c:if test="${not empty param.size}"><c:param name="size" value="${param.size}" /></c:if>
+</c:url>
+
+<c:url var="editUrl" value="/board/edit">
+  <c:param name="boardId" value="${board.boardId}" />
+  <c:if test="${not empty param.boardType}"><c:param name="boardType" value="${param.boardType}" /></c:if>
+  <c:if test="${not empty param.insuranceType}"><c:param name="insuranceType" value="${param.insuranceType}" /></c:if>
+  <c:if test="${not empty param.status}"><c:param name="status" value="${param.status}" /></c:if>
+  <c:if test="${not empty param.openYn}"><c:param name="openYn" value="${param.openYn}" /></c:if>
+  <c:if test="${not empty param.keyword}"><c:param name="keyword" value="${param.keyword}" /></c:if>
+  <c:if test="${not empty param.page}"><c:param name="page" value="${param.page}" /></c:if>
+  <c:if test="${not empty param.size}"><c:param name="size" value="${param.size}" /></c:if>
+</c:url>
+
+<c:set var="keepKeys" value="boardType,insuranceType,status,openYn,keyword,page,size" />
+<c:set var="me" value="${sessionScope.loginMember}" />
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>상세 | 보험 문의/공유 게시판</title>
+  <title>게시글 상세 - INS 커뮤니티</title>
 
-  <style>
-    :root{
-      --bg:#f6f7fb; --card:#ffffff; --text:#111827; --muted:#6b7280; --line:#e5e7eb;
-      --primary:#2563eb; --primary-weak:#eff6ff; --danger:#ef4444; --success:#10b981; --warning:#f59e0b;
-      --shadow: 0 10px 25px rgba(0,0,0,.06); --radius: 14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Helvetica,Arial;background:var(--bg);color:var(--text)}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width: 980px; margin: 28px auto; padding: 0 16px;}
-    .page-title{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom: 14px;}
-    .page-title h1{font-size: 22px; margin:0; letter-spacing:-.3px;}
-    .page-title .meta{color:var(--muted); font-size:13px}
-    .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);}
-    .hd{padding:16px; border-bottom:1px solid var(--line);}
-    .bd{padding:16px;}
-    .ft{padding:14px 16px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;}
-    .title{font-size:20px; font-weight:750; letter-spacing:-.3px; line-height:1.3; margin: 6px 0 10px;}
-    .badges{display:flex; gap:8px; flex-wrap:wrap; margin-top: 8px;}
-    .badge{
-      display:inline-flex; align-items:center; padding: 4px 8px; border-radius:999px; font-size:11px; font-weight:700;
-      border: 1px solid transparent; gap:6px; white-space:nowrap;
-    }
-    .b-type-inq{background:#fff7ed; color:#9a3412; border-color:#fed7aa;}
-    .b-type-share{background:#f0fdf4; color:#166534; border-color:#bbf7d0;}
-    .b-ins{background:#f1f5f9; color:#334155; border-color:#e2e8f0;}
-    .b-wait{background:#fffbeb; color:#92400e; border-color:#fde68a;}
-    .b-answered{background:#ecfdf5; color:#065f46; border-color:#a7f3d0;}
-    .b-closed{background:#f3f4f6; color:#374151; border-color:#e5e7eb;}
-    .b-private{background:#fef2f2; color:#991b1b; border-color:#fecaca;}
-
-    .meta-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .meta-item{
-      background:#fafafa;
-      border:1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 12px;
-      display:flex; justify-content:space-between; gap:10px;
-    }
-    .meta-item b{color:#374151}
-    .content{
-      margin-top: 14px;
-      background:#ffffff;
-      border:1px solid var(--line);
-      border-radius: 12px;
-      padding: 14px 14px;
-      line-height: 1.75;
-      font-size: 15px;
-      white-space: pre-wrap; /* 줄바꿈 유지 */
-      word-break: break-word;
-    }
-
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding: 10px 12px; border-radius: 10px;
-      border: 1px solid var(--line); background:#fff; font-size: 13px; cursor:pointer; transition:.12s ease; gap:8px;
-    }
-    .btn:hover{transform: translateY(-1px)}
-    .btn.primary{border-color:#1d4ed8; background:var(--primary); color:#fff;}
-    .btn.ghost{background:var(--primary-weak); border-color:#dbeafe; color:#1d4ed8;}
-    .btn.danger{border-color:#fecaca; background:#fef2f2; color:#991b1b;}
-    .mono{font-family:var(--mono)}
-    @media(max-width:720px){
-      .meta-grid{grid-template-columns: 1fr;}
-    }
-  </style>
+  <link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/board.css'/>" />
 </head>
 
-<body>
+<body class="board board-detail">
+<%@ include file="/WEB-INF/views/layout/header.jsp" %>
+
 <div class="wrap">
 
   <div class="page-title">
     <div>
       <h1>게시글 상세</h1>
-      <div class="meta">ID: <span class="mono">#<c:out value="${board.boardId}"/></span></div>
+      <div class="page-meta mono">ID: #<c:out value="${board.boardId}"/></div>
     </div>
-
-    <a class="btn ghost" href="<c:url value='/board/list'/>">목록</a>
+    <div class="top-actions">
+      <a class="btn ghost" href="${listUrl}">목록</a>
+    </div>
   </div>
 
+  <!-- ✅ 게시글 작업(작성/수정/삭제 등) 메시지만 여기서 출력 -->
+  <c:if test="${not empty error}">
+    <div class="msg err"><c:out value="${error}"/></div>
+  </c:if>
+  <c:if test="${not empty msg}">
+    <div class="msg ok"><c:out value="${msg}"/></div>
+  </c:if>
+
+  <!-- 게시글 카드 -->
   <div class="card">
 
-    <div class="hd">
+    <div class="card-hd is-stack">
       <div class="badges">
-        <!-- 공개 여부 -->
-        <c:if test="${board.openYn eq 'N'}">
-          <span class="badge b-private">비공개</span>
-        </c:if>
-
-        <!-- 게시글 유형 -->
         <c:choose>
-          <c:when test="${board.boardType eq 'INQUIRY'}">
-            <span class="badge b-type-inq">문의</span>
-          </c:when>
-          <c:otherwise>
-            <span class="badge b-type-share">공유</span>
-          </c:otherwise>
+          <c:when test="${board.openYn eq 'N'}"><span class="badge b-private">비공개</span></c:when>
+          <c:otherwise><span class="badge b-open">공개</span></c:otherwise>
         </c:choose>
 
-        <!-- 보험 유형 -->
+        <c:choose>
+          <c:when test="${board.boardType eq 'INQUIRY'}"><span class="badge b-type-inq">문의</span></c:when>
+          <c:otherwise><span class="badge b-type-share">공유</span></c:otherwise>
+        </c:choose>
+
         <span class="badge b-ins"><c:out value="${board.insuranceType}"/></span>
 
-        <!-- 상태 -->
         <c:choose>
-          <c:when test="${board.status eq 'WAIT'}">
-            <span class="badge b-wait">대기</span>
-          </c:when>
-          <c:when test="${board.status eq 'ANSWERED'}">
-            <span class="badge b-answered">답변완료</span>
-          </c:when>
-          <c:otherwise>
-            <span class="badge b-closed">종료</span>
-          </c:otherwise>
+          <c:when test="${board.status eq 'WAIT'}"><span class="badge b-wait">대기</span></c:when>
+          <c:when test="${board.status eq 'ANSWERED'}"><span class="badge b-answered">답변완료</span></c:when>
+          <c:otherwise><span class="badge b-closed">종료</span></c:otherwise>
         </c:choose>
       </div>
 
-      <div class="title">
-        <c:out value="${board.title}"/>
-      </div>
+      <div class="detail-title"><c:out value="${board.title}"/></div>
 
       <div class="meta-grid">
-        <div class="meta-item">
-          <span>작성자</span>
-          <b><c:out value="${empty board.writerName ? '익명' : board.writerName}"/></b>
-        </div>
-
-        <div class="meta-item">
-          <span>작성자ID</span>
-          <b class="mono"><c:out value="${board.memberId}"/></b>
-        </div>
-
-        <div class="meta-item">
-          <span>작성일</span>
-          <b><c:out value="${board.createdDate}"/></b>
-        </div>
-
-        <div class="meta-item">
-          <span>조회수</span>
-          <b><c:out value="${board.viewCnt}"/></b>
-        </div>
-
-        <div class="meta-item">
-          <span>수정일</span>
-          <b><c:out value="${board.updatedAt}"/></b>
-        </div>
-
-        <div class="meta-item">
-          <span>삭제여부</span>
-          <b><c:out value="${board.deletedYn}"/></b>
-        </div>
+        <div class="meta-item"><span>작성자</span><b><c:out value="${empty board.writerName ? '익명' : board.writerName}"/></b></div>
+        <div class="meta-item"><span>작성자ID</span><b class="mono"><c:out value="${board.memberId}"/></b></div>
+        <div class="meta-item"><span>작성일</span><b><c:out value="${board.createdDate}"/></b></div>
+        <div class="meta-item"><span>조회수</span><b><c:out value="${board.viewCnt}"/></b></div>
+        <div class="meta-item"><span>수정일</span><b><c:out value="${board.updatedAt}"/></b></div>
+        <div class="meta-item"><span>삭제여부</span><b><c:out value="${board.deletedYn}"/></b></div>
       </div>
     </div>
 
-    <div class="bd">
-      <div class="content"><c:out value="${board.content}"/></div>
+    <div class="card-bd">
+      <div class="content-box"><c:out value="${board.content}"/></div>
     </div>
 
-    <div class="ft">
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="btn" href="<c:url value='/board/list'/>">목록</a>
+    <div class="card-ft">
+      <div class="ft-left">
+        <a class="btn" href="${listUrl}">목록</a>
       </div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="btn primary"
-           href="<c:url value='/board/edit'><c:param name='boardId' value='${board.boardId}'/></c:url>">수정</a>
+      <div class="ft-right">
+        <c:if test="${not empty me}">
+          <c:if test="${me.role eq 'ADMIN' || me.memberId eq board.memberId}">
+            <a class="btn primary" href="${editUrl}">수정</a>
 
-        <form method="post" action="<c:url value='/board/delete'/>"
-              onsubmit="return confirm('정말 삭제하시겠습니까?');" style="margin:0;">
-          <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
-          <button class="btn danger" type="submit">삭제</button>
-        </form>
+            <form method="post" action="<c:url value='/board/delete'/>"
+                  style="margin:0;"
+                  onsubmit="return confirm('정말 삭제하시겠습니까? 삭제 후 복구가 어렵습니다.');">
+              <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
+
+              <!-- 목록 파라미터 유지 -->
+              <c:forEach var="k" items="${fn:split(keepKeys, ',')}">
+                <c:if test="${not empty param[k]}">
+                  <input type="hidden" name="${k}" value="<c:out value='${param[k]}'/>"/>
+                </c:if>
+              </c:forEach>
+
+              <button class="btn danger" type="submit">삭제</button>
+            </form>
+          </c:if>
+        </c:if>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /card -->
+
+  <!-- ✅ 댓글 카드: wrap 안에 넣어서 폭 맞춤 -->
+  <div id="comments" class="card comment-card">
+    <div class="card-hd">
+      <div>
+        <h2 class="title comment-title">댓글</h2>
+        <p class="sub">총 <strong><c:out value="${commentCount}"/></strong>개</p>
+      </div>
+    </div>
+
+    <div class="card-bd">
+
+      <!-- ✅ 댓글 작업 메시지는 cmsg/cerror만 여기서 출력 -->
+      <c:if test="${not empty cerror}">
+        <div class="msg err"><c:out value="${cerror}"/></div>
+      </c:if>
+      <c:if test="${not empty cmsg}">
+        <div class="msg ok"><c:out value="${cmsg}"/></div>
+      </c:if>
+
+      <!-- 댓글 작성 -->
+      <c:choose>
+        <c:when test="${empty me}">
+          <div class="msg err">댓글 작성은 로그인 후 가능합니다.</div>
+          <a class="btn primary" href="${cpath}/member/login">로그인</a>
+        </c:when>
+
+        <c:otherwise>
+          <form class="comment-form" method="post" action="<c:url value='/comment/write'/>">
+            <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
+
+            <!-- 목록 파라미터 유지 -->
+            <c:forEach var="k" items="${fn:split(keepKeys, ',')}">
+              <c:if test="${not empty param[k]}">
+                <input type="hidden" name="${k}" value="<c:out value='${param[k]}'/>"/>
+              </c:if>
+            </c:forEach>
+
+            <textarea class="ta" name="content" rows="3" placeholder="댓글을 입력하세요" required></textarea>
+
+            <c:if test="${me.role eq 'ADMIN' || me.role eq 'COUNSELOR'}">
+              <div class="comment-tools">
+                <label style="display:flex; gap:8px; align-items:center; font-size:13px; color:var(--muted);">
+                  <input type="checkbox" name="officialYn" value="Y" checked />
+                  공식 답변 표시
+                </label>
+
+                <select class="sel" name="afterStatus" style="max-width:240px;">
+                  <option value="">상태 변경 안함</option>
+                  <option value="ANSWERED">답변완료로 변경</option>
+                  <option value="CLOSED">종료로 변경</option>
+                </select>
+              </div>
+            </c:if>
+
+            <div class="comment-submit">
+              <button class="btn primary" type="submit">댓글 등록</button>
+            </div>
+          </form>
+        </c:otherwise>
+      </c:choose>
+
+      <div style="height:14px;"></div>
+
+      <!-- 댓글 목록 -->
+      <c:choose>
+        <c:when test="${empty comments}">
+          <div class="empty">첫 댓글을 남겨보세요.</div>
+        </c:when>
+
+        <c:otherwise>
+          <c:forEach var="c" items="${comments}">
+            <div class="comment-item ${c.officialYn eq 'Y' ? 'is-official' : ''}">
+              <div class="comment-head">
+                <div class="comment-who">
+                  <strong><c:out value="${c.writerName}"/></strong>
+
+                  <c:choose>
+                    <c:when test="${c.writerRole eq 'ADMIN'}"><span class="badge b-admin">ADMIN</span></c:when>
+                    <c:when test="${c.writerRole eq 'COUNSELOR'}"><span class="badge b-counselor">COUNSELOR</span></c:when>
+                    <c:otherwise><span class="badge b-user">USER</span></c:otherwise>
+                  </c:choose>
+
+                  <c:if test="${c.officialYn eq 'Y'}">
+                    <span class="badge b-official">공식</span>
+                  </c:if>
+
+                  <span class="comment-time"><c:out value="${c.createdAt}"/></span>
+                </div>
+
+                <div class="comment-actions">
+                  <c:if test="${not empty me && me.memberId eq c.memberId}">
+                    <button class="btn" type="button" onclick="toggleEdit(<c:out value='${c.commentId}'/>)">수정</button>
+                  </c:if>
+
+                  <c:if test="${not empty me && (me.memberId eq c.memberId || me.role eq 'ADMIN')}">
+                    <form method="post" action="<c:url value='/comment/delete'/>" style="margin:0;"
+                          onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+                      <input type="hidden" name="commentId" value="<c:out value='${c.commentId}'/>"/>
+                      <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
+
+                      <c:forEach var="k" items="${fn:split(keepKeys, ',')}">
+                        <c:if test="${not empty param[k]}">
+                          <input type="hidden" name="${k}" value="<c:out value='${param[k]}'/>"/>
+                        </c:if>
+                      </c:forEach>
+
+                      <button class="btn danger" type="submit">삭제</button>
+                    </form>
+                  </c:if>
+                </div>
+              </div>
+
+              <div id="cbody-${c.commentId}" class="comment-body">
+                <c:out value="${c.content}"/>
+              </div>
+
+              <c:if test="${not empty me && me.memberId eq c.memberId}">
+                <form id="cedit-${c.commentId}" class="comment-edit" method="post"
+                      action="<c:url value='/comment/update'/>" style="display:none;">
+                  <input type="hidden" name="commentId" value="<c:out value='${c.commentId}'/>"/>
+                  <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
+
+                  <c:forEach var="k" items="${fn:split(keepKeys, ',')}">
+                    <c:if test="${not empty param[k]}">
+                      <input type="hidden" name="${k}" value="<c:out value='${param[k]}'/>"/>
+                    </c:if>
+                  </c:forEach>
+
+                  <textarea class="ta" name="content" rows="3" required><c:out value="${c.content}"/></textarea>
+
+                  <div class="comment-edit-actions">
+                    <button class="btn" type="button" onclick="toggleEdit(<c:out value='${c.commentId}'/>)">취소</button>
+                    <button class="btn primary" type="submit">저장</button>
+                  </div>
+                </form>
+              </c:if>
+            </div>
+          </c:forEach>
+        </c:otherwise>
+      </c:choose>
+
+    </div><!-- /card-bd -->
+  </div><!-- /comment card -->
+
+</div><!-- /wrap -->
+
+<script>
+  function toggleEdit(id){
+    const body = document.getElementById('cbody-' + id);
+    const form = document.getElementById('cedit-' + id);
+    if(!form) return;
+    const on = (form.style.display === 'none' || form.style.display === '');
+    form.style.display = on ? 'block' : 'none';
+    if(body) body.style.display = on ? 'none' : 'block';
+  }
+
+  // focus=comments 로 돌아오면 댓글 영역으로 스크롤
+  (function(){
+    const p = new URLSearchParams(location.search);
+    if(p.get('focus') === 'comments'){
+      const el = document.getElementById('comments');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  })();
+</script>
+
+<%@ include file="/WEB-INF/views/layout/footer.jsp" %>
 </body>
 </html>

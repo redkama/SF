@@ -1,89 +1,91 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<c:set var="cpath" value="${pageContext.request.contextPath}" />
+
+<%-- 목록으로 돌아갈 때 검색/필터/페이징 파라미터 유지 --%>
+<c:url var="listUrl" value="/board/list">
+  <c:if test="${not empty param.boardType}"><c:param name="boardType" value="${param.boardType}" /></c:if>
+  <c:if test="${not empty param.insuranceType}"><c:param name="insuranceType" value="${param.insuranceType}" /></c:if>
+  <c:if test="${not empty param.status}"><c:param name="status" value="${param.status}" /></c:if>
+  <c:if test="${not empty param.openYn}"><c:param name="openYn" value="${param.openYn}" /></c:if>
+  <c:if test="${not empty param.keyword}"><c:param name="keyword" value="${param.keyword}" /></c:if>
+  <c:if test="${not empty param.page}"><c:param name="page" value="${param.page}" /></c:if>
+  <c:if test="${not empty param.size}"><c:param name="size" value="${param.size}" /></c:if>
+</c:url>
+
+<%-- 상세로 돌아갈 때도 파라미터 유지 (boardId 포함) --%>
+<c:url var="viewUrl" value="/board/view">
+  <c:param name="boardId" value="${board.boardId}" />
+  <c:if test="${not empty param.boardType}"><c:param name="boardType" value="${param.boardType}" /></c:if>
+  <c:if test="${not empty param.insuranceType}"><c:param name="insuranceType" value="${param.insuranceType}" /></c:if>
+  <c:if test="${not empty param.status}"><c:param name="status" value="${param.status}" /></c:if>
+  <c:if test="${not empty param.openYn}"><c:param name="openYn" value="${param.openYn}" /></c:if>
+  <c:if test="${not empty param.keyword}"><c:param name="keyword" value="${param.keyword}" /></c:if>
+  <c:if test="${not empty param.page}"><c:param name="page" value="${param.page}" /></c:if>
+  <c:if test="${not empty param.size}"><c:param name="size" value="${param.size}" /></c:if>
+</c:url>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>게시글 수정</title>
-  <style>
-    :root{
-      --bg:#f6f7fb;--card:#ffffff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;
-      --primary:#2563eb;--primary-weak:#eff6ff;--danger:#ef4444;--shadow:0 10px 25px rgba(0,0,0,.06);
-      --radius:14px;--mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Helvetica,Arial}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:980px;margin:28px auto;padding:0 16px}
-    .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .top h1{margin:0;font-size:22px;letter-spacing:-.3px}
-    .top .meta{color:var(--muted);font-size:13px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-    .body{padding:18px}
-    .grid{display:grid;grid-template-columns:160px 1fr 160px 1fr;gap:12px}
-    .row2{grid-column:1/-1}
-    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    .in,.sel,.ta{
-      width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;
-      font-size:14px;outline:none;background:#fff
-    }
-    .in:focus,.sel:focus,.ta:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-    .ta{min-height:260px;resize:vertical;line-height:1.6}
-    .ro{background:#f9fafb}
-    .actions{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
-      padding:14px 18px;border-top:1px solid var(--line);background:#fafafa
-    }
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;gap:8px;
-      padding:10px 12px;border-radius:10px;border:1px solid var(--line);
-      background:#fff;font-size:13px;cursor:pointer;transition:.12s ease;white-space:nowrap
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:var(--primary);border-color:#1d4ed8;color:#fff}
-    .btn.ghost{background:var(--primary-weak);border-color:#dbeafe;color:#1d4ed8}
-    .btn.danger{background:var(--danger);border-color:#dc2626;color:#fff}
-    @media(max-width:840px){.grid{grid-template-columns:1fr 1fr}.row2{grid-column:1/-1}}
-  </style>
+  <title>게시글 수정 - INS 커뮤니티</title>
+
+  <link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/board.css'/>" />
 </head>
 
-<body>
+<body class="board board-form">
+<%@ include file="/WEB-INF/views/layout/header.jsp" %>
+
 <div class="wrap">
-  <div class="top">
+
+  <div class="page-title">
     <div>
       <h1>게시글 수정</h1>
-      <div class="meta">#<c:out value="${board.boardId}"/> · 조회 <c:out value="${board.viewCnt}"/></div>
+      <div class="page-meta mono">
+        #<c:out value="${board.boardId}"/> · 조회 <c:out value="${board.viewCnt}"/>
+      </div>
     </div>
-    <div style="display:flex;gap:10px;">
-      <a class="btn ghost" href="<c:url value='/board/list'/>">목록</a>
-      <a class="btn" href="<c:url value='/board/detail'><c:param name='boardId' value='${board.boardId}'/></c:url>">상세</a>
+
+    <div class="top-actions">
+      <a class="btn ghost" href="${listUrl}">목록</a>
+      <a class="btn" href="${viewUrl}">상세</a>
     </div>
   </div>
 
+  <c:if test="${not empty error}">
+    <div class="msg err"><c:out value="${error}"/></div>
+  </c:if>
+  <c:if test="${not empty msg}">
+    <div class="msg ok"><c:out value="${msg}"/></div>
+  </c:if>
+
   <form method="post" action="<c:url value='/board/edit'/>">
-    <input type="hidden" name="boardId" value="${board.boardId}"/>
+    <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
+
+    <%-- (필요 시 서버에서 검증하더라도, 폼 제출 값이 필요하다면 hidden 유지) --%>
+    <input type="hidden" name="memberId" value="<c:out value='${board.memberId}'/>"/>
 
     <div class="card">
-      <div class="body">
-        <div class="grid">
+      <div class="form-body">
+        <div class="form-grid">
 
-          <!-- 시스템/표시 -->
           <div class="field">
             <label>게시글 ID</label>
-            <input class="in ro" type="text" value="${board.boardId}" readonly />
+            <input class="inp ro" type="text" value="<c:out value='${board.boardId}'/>" readonly />
           </div>
 
           <div class="field">
             <label>조회수</label>
-            <input class="in ro" type="text" value="${board.viewCnt}" readonly />
+            <input class="inp ro" type="text" value="<c:out value='${board.viewCnt}'/>" readonly />
           </div>
 
-          <!-- 수정 가능: 전체 -->
           <div class="field">
             <label>작성자 회원ID</label>
-            <input class="in ro" type="number" name="memberId" value="${board.memberId}" readonly />
+            <input class="inp ro" type="text" value="<c:out value='${board.memberId}'/>" readonly />
           </div>
 
           <div class="field">
@@ -114,40 +116,43 @@
 
           <div class="field">
             <label>상태</label>
-            <select class="sel" name="status" readonly>
+            <select class="sel" name="status" disabled>
               <option value="WAIT"     <c:if test="${board.status eq 'WAIT'}">selected</c:if>>대기</option>
               <option value="ANSWERED" <c:if test="${board.status eq 'ANSWERED'}">selected</c:if>>답변완료</option>
               <option value="CLOSED"   <c:if test="${board.status eq 'CLOSED'}">selected</c:if>>종료</option>
             </select>
+            <input type="hidden" name="status" value="<c:out value='${board.status}'/>"/>
           </div>
 
-          <div class="field row2">
+          <div class="field form-row-full">
             <label>제목</label>
-            <input class="in" type="text" name="title" value="${board.title}" maxlength="200" required />
+            <input class="inp" type="text" name="title"
+                   value="<c:out value='${board.title}'/>"
+                   maxlength="200" required />
           </div>
 
-          <div class="field row2">
+          <div class="field form-row-full">
             <label>내용</label>
-            <textarea class="ta" name="content" required>${board.content}</textarea>
+            <textarea class="ta ta-lg" name="content" required><c:out value="${board.content}"/></textarea>
           </div>
 
-          <!-- 표시 -->
           <div class="field">
             <label>작성일</label>
-            <input class="in ro" type="text" value="${board.createdDate}" readonly />
+            <input class="inp ro" type="text" value="<c:out value='${board.createdDate}'/>" readonly />
           </div>
+
           <div class="field">
             <label>수정일</label>
-            <input class="in ro" type="text" value="${board.updatedAt}" readonly />
+            <input class="inp ro" type="text" value="<c:out value='${board.updatedAt}'/>" readonly />
           </div>
 
         </div>
       </div>
 
-      <div class="actions">
-        <a class="btn" href="<c:url value='/board/detail'><c:param name='boardId' value='${board.boardId}'/></c:url>">취소</a>
+      <div class="form-actions">
+        <a class="btn" href="${viewUrl}">취소</a>
 
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn primary" type="submit">저장</button>
           <button class="btn danger" type="button" onclick="submitDelete()">삭제</button>
         </div>
@@ -155,8 +160,8 @@
     </div>
   </form>
 
-  <form id="deleteForm" method="post" action="<c:url value='/board/delete'/>">
-    <input type="hidden" name="boardId" value="${board.boardId}"/>
+  <form id="deleteForm" method="post" action="<c:url value='/board/delete'/>" style="display:none;">
+    <input type="hidden" name="boardId" value="<c:out value='${board.boardId}'/>"/>
   </form>
 
   <script>
@@ -168,5 +173,7 @@
   </script>
 
 </div>
+
+<%@ include file="/WEB-INF/views/layout/footer.jsp" %>
 </body>
 </html>

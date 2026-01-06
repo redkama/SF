@@ -1,13 +1,18 @@
-</div>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="cpath" value="${pageContext.request.contextPath}" />
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // 삭제 confirm 공용
-  function confirmDelete(formId) {
-    if (confirm("정말 삭제하시겠습니까?")) {
-      document.getElementById(formId).submit();
-    }
-  }
-</script>
-</body>
-</html>
+<footer class="site-footer">
+  <div class="foot-inner">
+    <div>
+      <div class="foot-title">INS 커뮤니티</div>
+      <div>보험 문의/공유 게시판 · 학습용 프로젝트</div>
+      <div class="copy">© <%= java.time.Year.now() %> INS Community. All rights reserved.</div>
+    </div>
+
+    <div class="foot-links">
+      <a href="${cpath}/board/list">게시판</a>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">맨위로</a>
+    </div>
+  </div>
+</footer>

@@ -200,5 +200,14 @@
         WHERE board_id = #{boardId}
           AND deleted_yn = 'N'
     </update>
+    
+      <!-- ✅ 댓글 등록 후 상태 변경용 -->
+	  <update id="updateStatus">
+	    UPDATE ins_board
+	       SET status     = #{status},
+	           updated_at = NOW()
+	     WHERE board_id   = #{boardId}
+	       AND deleted_yn = 'N'
+	  </update>
 
 </mapper>

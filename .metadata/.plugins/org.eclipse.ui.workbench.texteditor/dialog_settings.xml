@@ -10,21 +10,21 @@
 		<item key="isRegEx" value="false"/>
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
-			<item value="zerock"/>
-			<item value="Encoder"/>
-			<item value="security"/>
-			<item value="crypto"/>
-			<item value="DispatcherServlet"/>
-			<item value="count"/>
-			<item value="작성자 회원ID"/>
-			<item value="button"/>
+			<item value="selectByBoardId"/>
+			<item value="insert"/>
+			<item value="댓글이 삭제"/>
+			<item value="msg"/>
+			<item value=".b-official"/>
+			<item value=".board-detail"/>
+			<item value="addComment"/>
+			<item value="updateStatus"/>
 			<item value="detail"/>
-			<item value="유지되게 구성합니다."/>
-			<item value="INSERT"/>
-			<item value="viewC"/>
-			<item value="deleted_yn"/>
-			<item value="yn"/>
-			<item value="official_answered_yn"/>
+			<item value="delete"/>
+			<item value="memberId"/>
+			<item value="목록"/>
+			<item value="insuranceType"/>
+			<item value="b-private"/>
+			<item value="card-hd"/>
 		</list>
 		<list key="replacehistory">
 		</list>

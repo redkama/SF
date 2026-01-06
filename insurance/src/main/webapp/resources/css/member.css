@@ -1,0 +1,74 @@
+/* =========================
+   Member pages (common.css 위에 얹는 전용 스타일)
+========================= */
+
+/* 링크(테이블 안 상세 이동 등) */
+.link{
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 테이블 가로 스크롤 (모바일 깨짐 방지) */
+.table-scroll{
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll table{
+  min-width: 920px;
+}
+
+/* key-value(내정보) */
+.kv{
+  display:grid;
+  grid-template-columns: 160px 1fr;
+  gap:10px 14px;
+  align-items:center;
+}
+.kv .k{ color:var(--muted); font-size:13px; }
+.kv .v{ font-size:14px; font-weight:650; letter-spacing:-.2px; }
+.kv .v.mono{ font-family:var(--mono); color:#334155; font-weight:650; }
+
+/* 읽기 전용 박스(폼에서도 공통 사용) */
+.ro-box{
+  padding:10px 10px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#f9fafb;
+  font-size:13px;
+}
+
+/* member form: 2컬럼으로 사용 */
+.form-grid.member{
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width:840px){
+  .form-grid.member{ grid-template-columns:1fr; }
+}
+
+/* 로그인/회원가입 카드 폭 */
+.card.narrow{
+  max-width:520px;
+  margin:0 auto;
+}
+.auth-grid{
+  display:grid;
+  gap:12px;
+}
+.auth-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+/* 작은 도움말 */
+.help-sm{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.45;
+}
+.help-sm a{
+  color:var(--primary);
+  font-weight:800;
+}

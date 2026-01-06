@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.mapper.CommentMapper">
+
+  <!-- 댓글 목록: 작성자 이름/권한 join, 삭제된 댓글 제외 -->
+  <select id="selectByBoardId" parameterType="int" resultType="org.zerock.dto.CommentDTO">
+    SELECT
+      c.comment_id   AS commentId,
+      c.board_id     AS boardId,
+      c.member_id    AS memberId,
+      c.content      AS content,
+      c.official_yn  AS officialYn,
+      c.deleted_yn   AS deletedYn,
+      c.created_at AS createdAt,
+
+      m.name         AS writerName,
+      m.role         AS writerRole
+    FROM ins_comment c
+    JOIN ins_member m ON m.member_id = c.member_id
+    WHERE c.board_id = #{boardId}
+      AND c.deleted_yn = 'N'
+    ORDER BY (c.official_yn = 'Y') DESC, c.created_at DESC, c.comment_id DESC
+  </select>
+
+  <!-- 댓글 등록 -->
+  <insert id="insert" parameterType="org.zerock.dto.CommentDTO" useGeneratedKeys="true" keyProperty="commentId">
+    INSERT INTO ins_comment (board_id, member_id, content, official_yn, deleted_yn)
+    VALUES (#{boardId}, #{memberId}, #{content}, COALESCE(#{officialYn}, 'N'), 'N')
+  </insert>
+
+  <!-- 댓글 수정(본인만): member_id 조건으로 방어 -->
+  <update id="updateByOwner" parameterType="map">
+    UPDATE ins_comment
+       SET content = #{content}
+     WHERE comment_id = #{commentId}
+       AND member_id  = #{memberId}
+       AND deleted_yn = 'N'
+  </update>
+
+  <!-- 댓글 삭제(본인): soft delete -->
+  <update id="deleteByOwner" parameterType="map">
+    UPDATE ins_comment
+       SET deleted_yn = 'Y'
+     WHERE comment_id = #{commentId}
+       AND member_id  = #{memberId}
+       AND deleted_yn = 'N'
+  </update>
+
+  <!-- 댓글 삭제(관리자): soft delete -->
+  <update id="deleteByAdmin" parameterType="int">
+    UPDATE ins_comment
+       SET deleted_yn = 'Y'
+     WHERE comment_id = #{commentId}
+       AND deleted_yn = 'N'
+  </update>
+
+  <!-- (옵션) 댓글이 어떤 게시글인지 찾기: 권한체크/redirect용 -->
+  <select id="selectBoardIdByCommentId" parameterType="int" resultType="int">
+    SELECT board_id
+      FROM ins_comment
+     WHERE comment_id = #{commentId}
+  </select>
+
+</mapper>
