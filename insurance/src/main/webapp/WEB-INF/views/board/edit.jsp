@@ -15,7 +15,7 @@
 </c:url>
 
 <%-- 상세로 돌아갈 때도 파라미터 유지 (boardId 포함) --%>
-<c:url var="viewUrl" value="/board/view">
+<c:url var="detailUrl" value="/board/detail">
   <c:param name="boardId" value="${board.boardId}" />
   <c:if test="${not empty param.boardType}"><c:param name="boardType" value="${param.boardType}" /></c:if>
   <c:if test="${not empty param.insuranceType}"><c:param name="insuranceType" value="${param.insuranceType}" /></c:if>
@@ -52,7 +52,7 @@
 
     <div class="top-actions">
       <a class="btn ghost" href="${listUrl}">목록</a>
-      <a class="btn" href="${viewUrl}">상세</a>
+      <a class="btn" href="${detailUrl}">상세</a>
     </div>
   </div>
 
@@ -150,7 +150,7 @@
       </div>
 
       <div class="form-actions">
-        <a class="btn" href="${viewUrl}">취소</a>
+        <a class="btn" href="${detailUrl}">취소</a>
 
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn primary" type="submit">저장</button>

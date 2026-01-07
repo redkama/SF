@@ -19,6 +19,8 @@
 <body class="board board-list">
 <%@ include file="/WEB-INF/views/layout/header.jsp" %>
 
+<c:set var="me" value="${sessionScope.loginMember}" />
+
 <div class="wrap-wide">
 
   <div class="page-title">
@@ -94,7 +96,7 @@
       </div>
 
       <div class="hint">
-        * 필터/키워드/페이징 파라미터 유지 구성 (목록 → 상세 → 뒤로가기에도 조건 유지)
+        * 필터 : 문의유형(문의, 공유) / 보험유형(자동차, 건강, 생명, 화재) / 상태(대기, 답변완료, 종료) / 공개여부(공개, 비공개)
       </div>
     </form>
 
@@ -102,8 +104,8 @@
       <thead>
       <tr>
         <th class="col-id">ID</th>
-        <th>제목</th>
-        <th class="col-meta">작성자 / 분류</th>
+        <th>제목 / 분류</th>
+        <th class="col-meta">작성자</th>
         <th class="col-stats">조회/댓글</th>
         <th class="col-meta">작성일</th>
       </tr>
@@ -117,11 +119,19 @@
 
         <c:otherwise>
           <c:forEach var="b" items="${list}">
+          <c:set var="canView"
+       		  value="${b.openYn eq 'Y'
+                 || (not empty me
+                     && (me.role eq 'ADMIN'
+                         || me.role eq 'COUNSELOR'
+                         || me.memberId eq b.memberId))}" />
             <tr>
               <td class="col-id">#<c:out value="${b.boardId}"/></td>
 
               <td>
-                <a class="title-link" href="<c:url value='/board/view'>
+        	   <c:choose>
+      		    <c:when test="${canView}">
+              	  <a class="title-link" href="<c:url value='/board/view'>
                     <c:param name='boardId' value='${b.boardId}'/>
                     <c:if test='${not empty search.boardType}'><c:param name='boardType' value='${search.boardType}'/></c:if>
                     <c:if test='${not empty search.insuranceType}'><c:param name='insuranceType' value='${search.insuranceType}'/></c:if>
@@ -130,16 +140,22 @@
                     <c:if test='${not empty search.keyword}'><c:param name='keyword' value='${search.keyword}'/></c:if>
                     <c:param name='page' value='${page.page}'/>
                     <c:param name='size' value='${page.size}'/>
-                  </c:url>">
-                  <c:out value="${b.title}"/>
-                </a>
+                    </c:url>">
+                    <c:out value="${b.title}"/>
+                  </a>
+                </c:when>
+                
+                <c:otherwise>
+		          <!-- 클릭 불가(권한 없음) -->
+		          <span class="title-link is-locked"
+		                onclick="alert('비공개 글은 작성자/담당자/관리자만 열람할 수 있습니다.');">
+		            🔒 비공개 글입니다
+		          </span>
+		        </c:otherwise>
+		      </c:choose>
+                
 
                 <div class="subline">
-                  <c:choose>
-                    <c:when test="${b.openYn eq 'N'}"><span class="badge b-private">비공개</span></c:when>
-                    <c:otherwise><span class="badge b-open">공개</span></c:otherwise>
-                  </c:choose>
-
                   <c:choose>
                     <c:when test="${b.boardType eq 'INQUIRY'}"><span class="badge b-type-inq">문의</span></c:when>
                     <c:otherwise><span class="badge b-type-share">공유</span></c:otherwise>
@@ -151,6 +167,11 @@
                     <c:when test="${b.status eq 'WAIT'}"><span class="badge b-wait">대기</span></c:when>
                     <c:when test="${b.status eq 'ANSWERED'}"><span class="badge b-answered">답변완료</span></c:when>
                     <c:otherwise><span class="badge b-closed">종료</span></c:otherwise>
+                  </c:choose>
+                  
+                  <c:choose>
+                    <c:when test="${b.openYn eq 'N'}"><span class="badge b-private">비공개</span></c:when>
+                    <c:otherwise><span class="badge b-open">공개</span></c:otherwise>
                   </c:choose>
                 </div>
               </td>

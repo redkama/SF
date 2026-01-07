@@ -1,6 +1,7 @@
 package org.zerock.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.zerock.dto.BoardDTO;
@@ -52,4 +53,6 @@ public interface BoardMapper {
 	void updateStatus(@Param("boardId") int boardId,
             		@Param("status") String status);
 
+	Map<String, Object> selectOwnerAndStatus(@Param("boardId") int boardId);
+	
 }

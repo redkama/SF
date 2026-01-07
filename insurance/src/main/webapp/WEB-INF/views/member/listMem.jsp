@@ -34,7 +34,7 @@
     <div class="card-hd">
       <div>
         <h1 class="title">회원정보 리스트</h1>
-        <p class="sub">ins_member 테이블의 회원 정보를 조회합니다. (비밀번호는 표시하지 않습니다)</p>
+        <p class="sub">회원 정보를 조회합니다. (비밀번호는 표시하지 않습니다)</p>
       </div>
     </div>
 

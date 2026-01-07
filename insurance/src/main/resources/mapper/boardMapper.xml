@@ -209,5 +209,14 @@
 	     WHERE board_id   = #{boardId}
 	       AND deleted_yn = 'N'
 	  </update>
+	  
+	  <select id="selectOwnerAndStatus" parameterType="int" resultType="map">
+		  SELECT member_id AS memberId,
+		         status    AS status
+		    FROM ins_board
+		   WHERE board_id = #{boardId}
+		     AND deleted_yn = 'N'
+	  </select>
+
 
 </mapper>

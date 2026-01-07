@@ -68,11 +68,6 @@
     <div class="card-hd is-stack">
       <div class="badges">
         <c:choose>
-          <c:when test="${board.openYn eq 'N'}"><span class="badge b-private">비공개</span></c:when>
-          <c:otherwise><span class="badge b-open">공개</span></c:otherwise>
-        </c:choose>
-
-        <c:choose>
           <c:when test="${board.boardType eq 'INQUIRY'}"><span class="badge b-type-inq">문의</span></c:when>
           <c:otherwise><span class="badge b-type-share">공유</span></c:otherwise>
         </c:choose>
@@ -84,6 +79,11 @@
           <c:when test="${board.status eq 'ANSWERED'}"><span class="badge b-answered">답변완료</span></c:when>
           <c:otherwise><span class="badge b-closed">종료</span></c:otherwise>
         </c:choose>
+        
+        <c:choose>
+          <c:when test="${board.openYn eq 'N'}"><span class="badge b-private">비공개</span></c:when>
+          <c:otherwise><span class="badge b-open">공개</span></c:otherwise>
+        </c:choose>
       </div>
 
       <div class="detail-title"><c:out value="${board.title}"/></div>
@@ -94,7 +94,7 @@
         <div class="meta-item"><span>작성일</span><b><c:out value="${board.createdDate}"/></b></div>
         <div class="meta-item"><span>조회수</span><b><c:out value="${board.viewCnt}"/></b></div>
         <div class="meta-item"><span>수정일</span><b><c:out value="${board.updatedAt}"/></b></div>
-        <div class="meta-item"><span>삭제여부</span><b><c:out value="${board.deletedYn}"/></b></div>
+        <%-- <div class="meta-item"><span>삭제여부</span><b><c:out value="${board.deletedYn}"/></b></div> --%>
       </div>
     </div>
 
@@ -182,6 +182,16 @@
                 <select class="sel" name="afterStatus" style="max-width:240px;">
                   <option value="">상태 변경 안함</option>
                   <option value="ANSWERED">답변완료로 변경</option>
+                  <!-- <option value="CLOSED">종료로 변경</option> -->
+                </select>
+              </div>
+            </c:if>
+            
+            <c:if test="${me.memberId eq board.memberId && me.role eq 'USER' && board.status eq 'ANSWERED'}">
+              <div class="comment-tools">
+                <select class="sel" name="afterStatus" style="max-width:240px;">
+                  <option value="">상태 변경 안함</option>
+                  <option value="WAIT">대기로 재변경</option>
                   <option value="CLOSED">종료로 변경</option>
                 </select>
               </div>

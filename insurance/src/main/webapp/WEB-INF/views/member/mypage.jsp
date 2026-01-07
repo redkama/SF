@@ -79,18 +79,20 @@
             <div class="k">가입일</div>
             <div class="v mono"><c:out value="${me.createdAt}"/></div>
           </div>
-
-          <div class="card-ft">
-            <div class="ft-left"></div>
-            <div class="ft-right">
-              <a class="btn primary" href="<c:url value='/member/editMem'/>">회원정보 수정</a>
-              <a class="btn" href="<c:url value='/board/list'/>">확인</a>
-            </div>
-          </div>
         </c:otherwise>
       </c:choose>
-
     </div>
+    
+    <c:if test="${not empty me}">
+	  <div class="form-actions">
+	    <div></div>
+	    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+	      <a class="btn primary" href="<c:url value='/member/editMem'/>">회원정보 수정</a>
+	      <a class="btn" href="<c:url value='/board/list'/>">확인</a>
+	    </div>
+	  </div>
+	</c:if>
+    
   </div>
 
 </div>

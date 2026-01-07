@@ -10,21 +10,21 @@
 		<item key="isRegEx" value="false"/>
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
-			<item value="selectByBoardId"/>
-			<item value="insert"/>
-			<item value="댓글이 삭제"/>
-			<item value="msg"/>
-			<item value=".b-official"/>
-			<item value=".board-detail"/>
-			<item value="addComment"/>
-			<item value="updateStatus"/>
-			<item value="detail"/>
-			<item value="delete"/>
-			<item value="memberId"/>
-			<item value="목록"/>
-			<item value="insuranceType"/>
-			<item value="b-private"/>
-			<item value="card-hd"/>
+			<item value="분류"/>
+			<item value="/view"/>
+			<item value="viewurl"/>
+			<item value="viewUrl"/>
+			<item value="addListParams"/>
+			<item value="title"/>
+			<item value="getDetailWithViewCount"/>
+			<item value="rttr"/>
+			<item value="ra."/>
+			<item value="afterStatus"/>
+			<item value="삭제"/>
+			<item value="me."/>
+			<item value="me"/>
+			<item value="listUrl"/>
+			<item value="변경"/>
 		</list>
 		<list key="replacehistory">
 		</list>

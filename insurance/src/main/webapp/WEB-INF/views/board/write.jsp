@@ -35,7 +35,7 @@
     <div>
       <h1>게시글 작성</h1>
       <div class="page-meta">
-        board_type / insurance_type / status / open_yn까지 모두 입력
+        게시글 유형(문의/공유) / 보험 유형(자동차/건강/생명/화재) / 공개 여부 선택 후 작성 부탁드립니다.
       </div>
     </div>
 

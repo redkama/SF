@@ -1,6 +1,7 @@
 package org.zerock.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,37 +61,51 @@ public class BoardController {
        ========================== */
     @GetMapping("/view")
     public String view(
-    		@RequestParam("boardId") int boardId,
+            @RequestParam("boardId") int boardId,
             @ModelAttribute("search") BoardSearchDTO search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            Model model
+            Model model,
+            HttpSession session,
+            RedirectAttributes ra
     ) {
+        // ✅ 권한 체크(조회수 증가 전에!)
+        if (!canAccessPrivate(boardId, session, ra, search, page, size)) {
+            return "redirect:/board/list";
+        }
+
         model.addAttribute("board", boardService.getDetailWithViewCount(boardId));
         model.addAttribute("page", new PageDTO(page, size));
-        
+
         List<CommentDTO> comments = commentService.listByBoardId(boardId);
         model.addAttribute("comments", comments);
         model.addAttribute("commentCount", comments.size());
-        
+
         return "board/detail";
     }
-    
+
     @GetMapping("/detail")
     public String detail(
-    		@RequestParam("boardId") int boardId,
+            @RequestParam("boardId") int boardId,
             @ModelAttribute("search") BoardSearchDTO search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            Model model
+            Model model,
+            HttpSession session,
+            RedirectAttributes ra
     ) {
+        // ✅ 권한 체크(여긴 조회수 증가 없음)
+        if (!canAccessPrivate(boardId, session, ra, search, page, size)) {
+            return "redirect:/board/list";
+        }
+
         model.addAttribute("board", boardService.getDetail(boardId));
         model.addAttribute("page", new PageDTO(page, size));
-        
+
         List<CommentDTO> comments = commentService.listByBoardId(boardId);
         model.addAttribute("comments", comments);
         model.addAttribute("commentCount", comments.size());
-        
+
         return "board/detail";
     }
 
@@ -120,18 +135,19 @@ public class BoardController {
 		            RedirectAttributes rttr) {
     	
     	MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-        boardDTO.setMemberId(loginMember.getMemberId()); // ✅ 서버에서 확정
-		
-		boardService.register(boardDTO);
-		
-		// ✅ 등록 후 목록으로 돌아가며 조건 유지
-		rttr.addAttribute("boardType", search.getBoardType());
-		rttr.addAttribute("insuranceType", search.getInsuranceType());
-		rttr.addAttribute("keyword", search.getKeyword());
-		rttr.addAttribute("page", page);
-		rttr.addAttribute("size", size);
-		
-		return "redirect:/board/list";
+        if (loginMember == null) {
+            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
+            addListParams(search, page, size, rttr);
+            return "redirect:/member/login";
+        }
+
+        boardDTO.setMemberId(loginMember.getMemberId());
+        boardService.register(boardDTO);
+
+        rttr.addFlashAttribute("msg", "게시글이 등록되었습니다.");
+        addListParams(search, page, size, rttr);
+
+        return "redirect:/board/list";
 	}
     
     /* ==========================
@@ -161,16 +177,19 @@ public class BoardController {
             RedirectAttributes rttr) {
     	
     	MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-    	boardService.modify(boardDTO, loginMember.getMemberId(), loginMember.getRole());
-		
-		rttr.addAttribute("boardId", boardDTO.getBoardId());
-		rttr.addAttribute("boardType", search.getBoardType());
-		rttr.addAttribute("insuranceType", search.getInsuranceType());
-		rttr.addAttribute("keyword", search.getKeyword());
-		rttr.addAttribute("page", page);
-		rttr.addAttribute("size", size);
-		
-		return "redirect:/board/detail";
+        if (loginMember == null) {
+            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
+            addListParams(search, page, size, rttr);
+            return "redirect:/member/login";
+        }
+
+        boardService.modify(boardDTO, loginMember.getMemberId(), loginMember.getRole());
+
+        rttr.addFlashAttribute("msg", "게시글이 수정되었습니다.");
+        rttr.addAttribute("boardId", boardDTO.getBoardId());
+        addListParams(search, page, size, rttr);
+
+        return "redirect:/board/detail";
 	}
     
     /* ==========================
@@ -178,20 +197,72 @@ public class BoardController {
        ========================== */
     @PostMapping("/delete")
     public String delete(
-    		@RequestParam("boardId") int boardId,
+            @RequestParam("boardId") int boardId,
             @ModelAttribute("search") BoardSearchDTO search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            RedirectAttributes rttr) {
+            HttpSession session,
+            RedirectAttributes rttr
+    ) {
+        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
+        if (me == null) {
+            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
+            addListParams(search, page, size, rttr);
+            return "redirect:/member/login";
+        }
 
-		boardService.remove(boardId);
-		
-		rttr.addAttribute("boardType", search.getBoardType());
-		rttr.addAttribute("insuranceType", search.getInsuranceType());
-		rttr.addAttribute("keyword", search.getKeyword());
-		rttr.addAttribute("page", page);
-		rttr.addAttribute("size", size);
-		
-		return "redirect:/board/list";
+        // remove 내부에서 권한 검증한다면 OK
+        // 아니면 remove(boardId, me.getMemberId(), me.getRole()) 형태로 권한을 넘기는 게 더 안전함
+        boardService.remove(boardId);
+
+        rttr.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
+        addListParams(search, page, size, rttr);
+
+        return "redirect:/board/list";
 	}
+    
+    private boolean canAccessPrivate(
+            int boardId,
+            HttpSession session,
+            RedirectAttributes rttr,
+            BoardSearchDTO search,
+            int page,
+            int size
+    ) {
+        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
+
+        // ✅ 접근 체크용 조회 (조회수 증가 X)
+        BoardDTO board = boardService.getDetail(boardId);
+        if (board == null) {
+        	rttr.addFlashAttribute("error", "게시글이 존재하지 않습니다.");
+            addListParams(search, page, size, rttr);
+            return false;
+        }
+
+        // openYn == 'N' 이면 작성자/담당자/관리자만
+        if ("N".equals(board.getOpenYn())) {
+            boolean staff = (me != null) && ("ADMIN".equals(me.getRole()) || "COUNSELOR".equals(me.getRole()));
+            boolean owner = (me != null) && Objects.equals(me.getMemberId(), board.getMemberId());
+
+            if (!(staff || owner)) {
+            	rttr.addFlashAttribute("error", "비공개 게시글은 작성자/담당자/관리자만 조회할 수 있습니다.");
+                addListParams(search, page, size, rttr);
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    private void addListParams(BoardSearchDTO search, int page, int size, RedirectAttributes rttr) {
+        if (search != null) {
+            if (search.getBoardType() != null && !search.getBoardType().isBlank()) rttr.addAttribute("boardType", search.getBoardType());
+            if (search.getInsuranceType() != null && !search.getInsuranceType().isBlank()) rttr.addAttribute("insuranceType", search.getInsuranceType());
+            if (search.getStatus() != null && !search.getStatus().isBlank()) rttr.addAttribute("status", search.getStatus());
+            if (search.getOpenYn() != null && !search.getOpenYn().isBlank()) rttr.addAttribute("openYn", search.getOpenYn());
+            if (search.getKeyword() != null && !search.getKeyword().isBlank()) rttr.addAttribute("keyword", search.getKeyword());
+        }
+        rttr.addAttribute("page", page);
+        rttr.addAttribute("size", size);
+    }
 }

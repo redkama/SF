@@ -283,3 +283,8 @@
   margin-top:8px;
   flex-wrap:wrap;
 }
+
+.title-link.is-locked{
+  color: var(--muted);
+  cursor: not-allowed;
+}

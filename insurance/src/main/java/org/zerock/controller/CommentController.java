@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.zerock.dto.CommentDTO;
 import org.zerock.dto.MemberDTO;
+import org.zerock.mapper.BoardMapper;
 import org.zerock.service.CommentService;
 
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class CommentController {
 
     @Autowired private CommentService commentService;
+    @Autowired private BoardMapper boardMapper;
 
     @PostMapping("/write")
     public String write(
@@ -52,6 +54,29 @@ public class CommentController {
         // officialYn / afterStatus 권한 제한
         String role = me.getRole(); // USER/COUNSELOR/ADMIN
         boolean staff = "ADMIN".equals(role) || "COUNSELOR".equals(role);
+        
+    	// ✅ 서버에서 게시글 소유자/현재 status 검증
+        Map<String, Object> info = boardMapper.selectOwnerAndStatus(boardId);
+        Integer ownerId = (Integer) info.get("memberId");
+        String currStatus = (String) info.get("status");
+
+        // ✅ 권한별로 허용되는 afterStatus만 통과
+        String allowedAfterStatus = null;
+
+        if(staff){
+            // 직원은 ANSWERED(및 너가 원하면 CLOSED도)만 허용
+            if("ANSWERED".equals(afterStatus) || "CLOSED".equals(afterStatus)){
+                allowedAfterStatus = afterStatus;
+            }
+        }else{
+            // 게시글 당사자(USER) + 현재 ANSWERED 일 때만 WAIT/CLOSED 허용
+            boolean isOwner = ownerId != null && ownerId == me.getMemberId();
+            if(isOwner && "ANSWERED".equals(currStatus)){
+                if("WAIT".equals(afterStatus) || "CLOSED".equals(afterStatus)){
+                    allowedAfterStatus = afterStatus;
+                }
+            }
+        }
 
         CommentDTO dto = new CommentDTO();
         dto.setBoardId(boardId);
@@ -59,7 +84,7 @@ public class CommentController {
         dto.setContent(content.trim());
         dto.setOfficialYn(staff && "Y".equals(officialYn) ? "Y" : "N");
 
-        commentService.addComment(dto, staff ? afterStatus : null);
+        commentService.addComment(dto, allowedAfterStatus);
 
         ra.addFlashAttribute("cmsg", "댓글이 등록되었습니다.");
         addListParams(params, ra);
