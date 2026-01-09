@@ -18,6 +18,8 @@ import org.zerock.dto.MemberDTO;
 import org.zerock.dto.PageDTO;
 import org.zerock.service.BoardService;
 import org.zerock.service.CommentService;
+import org.zerock.service.exception.ForbiddenException;
+import org.zerock.service.exception.NotFoundException;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/board")
 public class BoardController {
 
-    private final BoardService boardService;
-    
+    private final BoardService boardService; 
     private final CommentService commentService;
     
     /* ==========================
@@ -44,7 +45,7 @@ public class BoardController {
         PageDTO pageDTO = new PageDTO(page, size);
 
         int totalCount = boardService.getTotalCount(search);
-        pageDTO.setTotalCount(totalCount); // ✅ 이거 필수
+        pageDTO.setTotalCount(totalCount); 
 
         List<BoardDTO> list = boardService.getList(search, pageDTO);
 
@@ -57,57 +58,36 @@ public class BoardController {
     
     
     /* ==========================
-       게시글 상세
-       ========================== */
-    @GetMapping("/view")
-    public String view(
-            @RequestParam("boardId") int boardId,
-            @ModelAttribute("search") BoardSearchDTO search,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Model model,
-            HttpSession session,
-            RedirectAttributes ra
-    ) {
-        // ✅ 권한 체크(조회수 증가 전에!)
-        if (!canAccessPrivate(boardId, session, ra, search, page, size)) {
-            return "redirect:/board/list";
-        }
+    게시글 상세(조회수 증가)
+    ========================== */
+	 @GetMapping("/view")
+	 public String view(
+	         @RequestParam("boardId") int boardId,
+	         @ModelAttribute("search") BoardSearchDTO search,
+	         @RequestParam(defaultValue = "1") int page,
+	         @RequestParam(defaultValue = "10") int size,
+	         Model model,
+	         HttpSession session,
+	         RedirectAttributes rttr
+	 ) {
+	     return renderDetail(boardId, search, page, size, model, session, rttr, true);
+	 }
 
-        model.addAttribute("board", boardService.getDetailWithViewCount(boardId));
-        model.addAttribute("page", new PageDTO(page, size));
-
-        List<CommentDTO> comments = commentService.listByBoardId(boardId);
-        model.addAttribute("comments", comments);
-        model.addAttribute("commentCount", comments.size());
-
-        return "board/detail";
-    }
-
-    @GetMapping("/detail")
-    public String detail(
-            @RequestParam("boardId") int boardId,
-            @ModelAttribute("search") BoardSearchDTO search,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Model model,
-            HttpSession session,
-            RedirectAttributes ra
-    ) {
-        // ✅ 권한 체크(여긴 조회수 증가 없음)
-        if (!canAccessPrivate(boardId, session, ra, search, page, size)) {
-            return "redirect:/board/list";
-        }
-
-        model.addAttribute("board", boardService.getDetail(boardId));
-        model.addAttribute("page", new PageDTO(page, size));
-
-        List<CommentDTO> comments = commentService.listByBoardId(boardId);
-        model.addAttribute("comments", comments);
-        model.addAttribute("commentCount", comments.size());
-
-        return "board/detail";
-    }
+    /* ==========================
+    게시글 상세(조회수 증가 없음)
+    ========================== */
+	 @GetMapping("/detail")
+	 public String detail(
+	         @RequestParam("boardId") int boardId,
+	         @ModelAttribute("search") BoardSearchDTO search,
+	         @RequestParam(defaultValue = "1") int page,
+	         @RequestParam(defaultValue = "10") int size,
+	         Model model,
+	         HttpSession session,
+	         RedirectAttributes rttr
+	 ) {
+	     return renderDetail(boardId, search, page, size, model, session, rttr, false);
+	 }
 
     /* ==========================
        게시글 작성 화면
@@ -135,11 +115,6 @@ public class BoardController {
 		            RedirectAttributes rttr) {
     	
     	MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-        if (loginMember == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            addListParams(search, page, size, rttr);
-            return "redirect:/member/login";
-        }
 
         boardDTO.setMemberId(loginMember.getMemberId());
         boardService.register(boardDTO);
@@ -159,11 +134,25 @@ public class BoardController {
             @ModelAttribute("search") BoardSearchDTO search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            Model model
+            Model model,
+            HttpSession session,
+            RedirectAttributes rttr
     ) {
-        model.addAttribute("board", boardService.getDetail(boardId));
-        model.addAttribute("page", new PageDTO(page, size));
-        return "board/edit";
+    	MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
+
+        try {
+            BoardDTO board = boardService.getForEdit(boardId, me.getMemberId(), me.getRole());
+            model.addAttribute("board", board);
+            model.addAttribute("page", new PageDTO(page, size));
+            return "board/edit";
+        } catch (ForbiddenException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+        } catch (NotFoundException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+        }
+
+        addListParams(search, page, size, rttr);
+        return "redirect:/board/list";
     }
 
     /* ==========================
@@ -176,20 +165,24 @@ public class BoardController {
             @RequestParam(defaultValue = "10") int size,
             RedirectAttributes rttr) {
     	
-    	MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-        if (loginMember == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
+    	MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
+
+    	try {
+            boardService.modify(boardDTO, me.getMemberId(), me.getRole());
+            rttr.addFlashAttribute("msg", "게시글이 수정되었습니다.");
+            rttr.addAttribute("boardId", boardDTO.getBoardId());
             addListParams(search, page, size, rttr);
-            return "redirect:/member/login";
+            return "redirect:/board/detail";
+        } catch (ForbiddenException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+        } catch (NotFoundException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
         }
 
-        boardService.modify(boardDTO, loginMember.getMemberId(), loginMember.getRole());
-
-        rttr.addFlashAttribute("msg", "게시글이 수정되었습니다.");
+        // 실패 시 원래 edit 화면으로 복귀
         rttr.addAttribute("boardId", boardDTO.getBoardId());
         addListParams(search, page, size, rttr);
-
-        return "redirect:/board/detail";
+        return "redirect:/board/edit";
 	}
     
     /* ==========================
@@ -198,29 +191,63 @@ public class BoardController {
     @PostMapping("/delete")
     public String delete(
             @RequestParam("boardId") int boardId,
+            HttpSession session,
             @ModelAttribute("search") BoardSearchDTO search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session,
             RedirectAttributes rttr
     ) {
-        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            addListParams(search, page, size, rttr);
-            return "redirect:/member/login";
+
+    	MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
+
+        try {
+            boardService.remove(boardId, me.getMemberId(), me.getRole());
+            rttr.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
+        } catch (ForbiddenException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+        } catch (NotFoundException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
         }
 
-        // remove 내부에서 권한 검증한다면 OK
-        // 아니면 remove(boardId, me.getMemberId(), me.getRole()) 형태로 권한을 넘기는 게 더 안전함
-        boardService.remove(boardId);
-
-        rttr.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
         addListParams(search, page, size, rttr);
-
         return "redirect:/board/list";
 	}
     
+    /* ==========================
+    상세 공통 처리
+    ========================== */
+	 private String renderDetail(
+	         int boardId,
+	         BoardSearchDTO search,
+	         int page,
+	         int size,
+	         Model model,
+	         HttpSession session,
+	         RedirectAttributes rttr,
+	         boolean increaseView
+	 ) {
+	     // 권한 체크(비공개 접근 차단)
+	     if (!canAccessPrivate(boardId, session, rttr, search, page, size)) {
+	         return "redirect:/board/list";
+	     }
+	
+	     BoardDTO board = increaseView
+	             ? boardService.getDetailWithViewCount(boardId)
+	             : boardService.getDetail(boardId);
+	
+	     model.addAttribute("board", board);
+	     model.addAttribute("page", new PageDTO(page, size));
+	
+	     List<CommentDTO> comments = commentService.listByBoardId(boardId);
+	     model.addAttribute("comments", comments);
+	     model.addAttribute("commentCount", comments.size());
+	
+	     return "board/detail";
+	 }
+    
+    /* ==========================
+    비공개 접근 권한 체크
+    ========================== */
     private boolean canAccessPrivate(
             int boardId,
             HttpSession session,
@@ -231,10 +258,12 @@ public class BoardController {
     ) {
         MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
 
-        // ✅ 접근 체크용 조회 (조회수 증가 X)
-        BoardDTO board = boardService.getDetail(boardId);
-        if (board == null) {
-        	rttr.addFlashAttribute("error", "게시글이 존재하지 않습니다.");
+        // 접근 체크용 조회 (조회수 증가 X)
+        BoardDTO board;
+        try {
+            board = boardService.getDetail(boardId); // 조회수 증가 X
+        } catch (NotFoundException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
             addListParams(search, page, size, rttr);
             return false;
         }
@@ -254,6 +283,9 @@ public class BoardController {
         return true;
     }
     
+    /* ==========================
+    목록 파라미터 유지
+    ========================== */
     private void addListParams(BoardSearchDTO search, int page, int size, RedirectAttributes rttr) {
         if (search != null) {
             if (search.getBoardType() != null && !search.getBoardType().isBlank()) rttr.addAttribute("boardType", search.getBoardType());

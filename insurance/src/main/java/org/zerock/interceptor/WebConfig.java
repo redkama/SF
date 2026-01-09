@@ -9,9 +9,17 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+    	
+    	// 로그인 필요 구간
         registry.addInterceptor(new AuthInterceptor())
-                .addPathPatterns("/board/write", "/board/edit", "/board/delete",
-                                 "/comment/**")   // 댓글도 붙일거면 같이
-                .excludePathPatterns("/member/**", "/board/list", "/board/view", "/board/detail");
+		        .addPathPatterns("/member/**", "/board/**", "/comment/**")
+		        .excludePathPatterns(
+		                "/member/login", "/member/join", "/member/logout",    
+		                "/board/list", "/board/view", "/board/detail");
+        
+        // 관리자 전용 구간
+        registry.addInterceptor(new AdminInterceptor())
+        		.addPathPatterns("/member/listMem", "/member/editMemAdmin", "/member/deleteMemAdmin");
+
     }
 }

@@ -10,6 +10,12 @@
 		<item key="isRegEx" value="false"/>
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="boardMapper"/>
+			<item value="write"/>
+			<item value="&quot;ADMIN&quot;"/>
+			<item value="@GetMapping(&quot;/mypage&quot;)"/>
+			<item value="@PostMapping(&quot;/login&quot;)"/>
+			<item value="memberId"/>
 			<item value="분류"/>
 			<item value="/view"/>
 			<item value="viewurl"/>
@@ -19,12 +25,6 @@
 			<item value="getDetailWithViewCount"/>
 			<item value="rttr"/>
 			<item value="ra."/>
-			<item value="afterStatus"/>
-			<item value="삭제"/>
-			<item value="me."/>
-			<item value="me"/>
-			<item value="listUrl"/>
-			<item value="변경"/>
 		</list>
 		<list key="replacehistory">
 		</list>

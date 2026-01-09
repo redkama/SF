@@ -8,6 +8,7 @@ import org.zerock.dto.BoardDTO;
 import org.zerock.dto.BoardSearchDTO;
 import org.zerock.dto.PageDTO;
 import org.zerock.mapper.BoardMapper;
+import org.zerock.service.exception.ForbiddenException;
 import org.zerock.service.exception.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -68,40 +69,41 @@ public class BoardService {
         return boardMapper.selectBoardTotalCount(search);
     }
 
-    /* ==========================
-       게시글 수정
-       ========================== */
+    /** edit 화면 진입용(권한 체크 포함) */
+    public BoardDTO getForEdit(int boardId, int actorId, String role) {
+        BoardDTO board = getDetail(boardId);
+        assertCanModify(board, actorId, role);
+        return board;
+    }
+
     @Transactional
-    public void modify(BoardDTO boardDTO, int loginMemberId, String role) {
-    	
-    	BoardDTO origin = boardMapper.selectBoardById(boardDTO.getBoardId());
-        if (origin == null) throw new NotFoundException("수정할 게시글이 존재하지 않습니다.");
-
-        boolean isOwner = origin.getMemberId() == loginMemberId;
-        boolean isAdmin = "ADMIN".equals(role);
-
-        if (!isOwner && !isAdmin) {
-            throw new RuntimeException("수정 권한이 없습니다.");
-        }
-
-        // memberId는 원본 유지 추천 (폼 조작 방지)
-        boardDTO.setMemberId(origin.getMemberId());
+    public void modify(BoardDTO boardDTO, int actorId, String role) {
+        BoardDTO existing = getDetail(boardDTO.getBoardId());
+        assertCanModify(existing, actorId, role);
 
         int updated = boardMapper.updateBoard(boardDTO);
-        if (updated == 0) {
-            throw new NotFoundException("수정할 게시글이 존재하지 않습니다.");
-        }
+        if (updated == 0) throw new NotFoundException("수정할 게시글이 존재하지 않습니다.");
     }
 
     /* ==========================
        게시글 삭제 (논리 삭제)
        ========================== */
     @Transactional
-    public void remove(int boardId) {
+    public void remove(int boardId, int actorId, String role) {
+        BoardDTO existing = getDetail(boardId);
+        assertCanModify(existing, actorId, role);
 
         int updated = boardMapper.deleteBoard(boardId);
-        if (updated == 0) {
-            throw new NotFoundException("삭제할 게시글이 존재하지 않습니다.");
+        if (updated == 0) throw new NotFoundException("삭제할 게시글이 존재하지 않습니다.");
+    }
+    
+    /** 권한 규칙: ADMIN 또는 작성자만 수정/삭제 가능 */
+    private void assertCanModify(BoardDTO board, int actorId, String role) {
+        boolean admin = "ADMIN".equals(role);
+        boolean owner = board.getMemberId() == actorId;
+
+        if (!(admin || owner)) {
+            throw new ForbiddenException("수정/삭제 권한이 없습니다.");
         }
     }
 }

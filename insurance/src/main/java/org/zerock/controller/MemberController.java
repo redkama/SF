@@ -1,5 +1,7 @@
 package org.zerock.controller;
 
+import java.util.List;
+
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,7 +36,7 @@ public class MemberController {
     public String join(MemberDTO memberDTO,
                        RedirectAttributes rttr) {
 
-        // (선택) 최소 검증
+        // 최소 검증
         if (memberDTO.getLoginId() == null || memberDTO.getLoginId().isBlank()
                 || memberDTO.getPassword() == null || memberDTO.getPassword().isBlank()
                 || memberDTO.getName() == null || memberDTO.getName().isBlank()
@@ -86,8 +88,14 @@ public class MemberController {
             return "redirect:/member/login";
         }
 
-        // 세션 저장 (전체 MemberDTO를 넣어도 되지만 필요한 것만 추천)
+        // 세션 저장
         session.setAttribute("loginMember", loginMember);
+        
+        String redirect = (String) session.getAttribute("redirectAfterLogin");
+        if (redirect != null) {
+            session.removeAttribute("redirectAfterLogin");
+            return "redirect:" + redirect.replaceFirst("^" + session.getServletContext().getContextPath(), "");
+        }
 
         return "redirect:/board/list";
     }
@@ -99,22 +107,12 @@ public class MemberController {
     }
     
     @GetMapping("/mypage")
-    public String mypage(HttpSession session, RedirectAttributes rttr) {
-        MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-        if (loginMember == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
+    public String mypage() {
         return "member/mypage";
     }
     
     @GetMapping("/editMem")
-    public String editForm(HttpSession session, RedirectAttributes rttr) {
-        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
+    public String editForm() {
         return "member/editMem";
     }
 
@@ -124,15 +122,11 @@ public class MemberController {
                        RedirectAttributes rttr) {
 
         MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
-
+        
         // 업데이트 (password/name/email만)
         MemberDTO updated = memberService.updateProfile(me.getMemberId(), dto);
 
-        // 세션 정보 갱신 (이게 중요)
+        // 세션 정보 갱신
         session.setAttribute("loginMember", updated);
 
         rttr.addFlashAttribute("msg", "회원정보가 수정되었습니다.");
@@ -144,17 +138,7 @@ public class MemberController {
                           Model model,
                           RedirectAttributes rttr) {
 
-        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
-        if (!"ADMIN".equals(me.getRole())) {
-            rttr.addFlashAttribute("error", "접근 권한이 없습니다.");
-            return "redirect:/board/list";
-        }
-
-        java.util.List<MemberDTO> members = memberService.getMemberList();
+        List<MemberDTO> members = memberService.getMemberList();
         model.addAttribute("members", members);
         model.addAttribute("totalCount", members.size());
         return "member/listMem";
@@ -165,16 +149,6 @@ public class MemberController {
                            Model model,
                            HttpSession session,
                            RedirectAttributes rttr) {
-
-        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {  // ✅ 추가
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
-        if (!"ADMIN".equals(me.getRole())) {
-            rttr.addFlashAttribute("error", "접근 권한이 없습니다. (관리자 전용)");
-            return "redirect:/board/list";
-        }
 
         MemberDTO target = memberService.getMemberById(memberId);
         if (target == null) {
@@ -190,16 +164,6 @@ public class MemberController {
     public String edit(@ModelAttribute MemberUpdateAdminDTO dto,
                        HttpSession session,
                        RedirectAttributes rttr) {
-
-        MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {  // ✅ 추가
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
-        if (!"ADMIN".equals(me.getRole())) {
-            rttr.addFlashAttribute("error", "접근 권한이 없습니다. (관리자 전용)");
-            return "redirect:/board/list";
-        }
 
         try {
             memberService.updateMemberByAdmin(dto);
@@ -217,19 +181,12 @@ public class MemberController {
                                  RedirectAttributes rttr) {
 
         MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
-        if (!"ADMIN".equals(me.getRole())) {
-            rttr.addFlashAttribute("error", "접근 권한이 없습니다. (관리자 전용)");
-            return "redirect:/board/list";
-        }
 
-        // (추천) 관리자 본인 계정 삭제 방지
+        // 관리자 본인 계정 삭제 방지
         if (me.getMemberId() == memberId) {
             rttr.addFlashAttribute("error", "관리자 본인 계정은 삭제할 수 없습니다.");
-            return "redirect:/member/editMemAdmin?memberId=" + memberId;
+            rttr.addAttribute("memberId", memberId);
+            return "redirect:/member/editMemAdmin";
         }
 
         try {
@@ -237,7 +194,8 @@ public class MemberController {
             rttr.addFlashAttribute("msg", "회원이 삭제(비활성화)되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
-            return "redirect:/member/editMemAdmin?memberId=" + memberId;
+            rttr.addAttribute("memberId", memberId);
+            return "redirect:/member/editMemAdmin";
         }
 
         return "redirect:/member/listMem";
@@ -247,10 +205,6 @@ public class MemberController {
     public String withdraw(HttpSession session, RedirectAttributes rttr) {
 
         MemberDTO me = (MemberDTO) session.getAttribute("loginMember");
-        if (me == null) {
-            rttr.addFlashAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/member/login";
-        }
 
         try {
             memberService.disableMember(me.getMemberId()); // use_yn='N'
